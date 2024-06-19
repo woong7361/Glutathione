@@ -2,7 +2,17 @@ spring:
   application:
     name: user-service
 
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://121.134.166.240:9999/new
+    username: root
+    password: woong7361
+  jpa:
+    hibernate:
+      ddl-auto: update
+
   config:
+    # 특정 IP 에서만 config server 접근 가능 (ex. jenkins server)
     import: "optional:configserver:http://121.134.166.240:40001/"
   cloud:
     config:

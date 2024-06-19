@@ -2,6 +2,24 @@ spring:
   application:
     name: user-service
 
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:db
+    username: sa
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    generate-ddl: true
+
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+      path: /console
+
   config:
     import: "optional:configserver:http://localhost:40001/"
   cloud:
@@ -15,6 +33,7 @@ server:
 eureka:
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    prefer-ip-address: true
   client:
     register-with-eureka: true
     fetch-registry: true
