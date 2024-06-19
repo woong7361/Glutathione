@@ -8,6 +8,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
@@ -17,6 +18,13 @@ public class UserController {
 
     private final Environment environment;
     private final TempRepository tempRepository;
+
+    @GetMapping("/home-page")
+    public String homePage() {
+        log.info("welcome home page " + LocalDateTime.now());
+
+        return "welcome home";
+    }
 
     @GetMapping("health-check")
     public String healthCheck() {
