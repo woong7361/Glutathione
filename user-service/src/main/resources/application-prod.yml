@@ -3,11 +3,11 @@ spring:
     name: user-service
 
   config:
-    import: "optional:configserver:http://localhost:40001/"
+    import: "optional:configserver:http://121.134.166.240:40001/"
   cloud:
     config:
       name: ecommerce
-      profile: dev
+      profile: prod
 
 server:
   port: 8888
@@ -19,5 +19,4 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-#      defaultZone: http://121.134.166.240:8761/eureka
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://121.134.166.240:8761/eureka
