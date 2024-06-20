@@ -2,7 +2,7 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
     <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <destination>121.134.166.240:5000</destination>
+        <destination>211.218.223.115:5000</destination>
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <mdc />
@@ -12,7 +12,7 @@
                 <pattern>
                     <pattern>
                         {
-                        "app": "aaa-log"
+                        "app": "spring-log"
                         }
                     </pattern>
                 </pattern>
