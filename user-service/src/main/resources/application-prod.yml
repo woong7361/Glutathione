@@ -1,26 +1,26 @@
+server:
+  port: 30101
+
 spring:
   application:
     name: user-service
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://121.134.166.240:9999/new
+    url: jdbc:mysql://211.218.223.115:30201/mydb
     username: root
     password: woong7361
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
 
   config:
     # 특정 IP 에서만 config server 접근 가능 (ex. jenkins server)
-    import: "optional:configserver:http://121.134.166.240:40001/"
+    import: "optional:configserver:http://211.218.223.115:30003/"
   cloud:
     config:
       name: ecommerce
       profile: prod
-
-server:
-  port: 8888
 
 eureka:
   instance:
@@ -30,5 +30,5 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://121.134.166.240:8761/eureka
+      defaultZone: http://211.218.223.115:30001/eureka
 
