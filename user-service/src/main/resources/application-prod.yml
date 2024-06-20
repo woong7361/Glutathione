@@ -20,7 +20,7 @@ spring:
   cloud:
     config:
       name: ecommerce
-      profile: prod
+      profile: dev
 
 eureka:
   instance:
