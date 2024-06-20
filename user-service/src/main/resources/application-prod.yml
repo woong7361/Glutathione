@@ -1,3 +1,6 @@
+server:
+  port: 30101
+
 spring:
   application:
     name: user-service
@@ -18,9 +21,6 @@ spring:
     config:
       name: ecommerce
       profile: prod
-
-server:
-  port: 8888
 
 eureka:
   instance:
