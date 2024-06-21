@@ -33,7 +33,6 @@ public class GlobalFilter extends AbstractGatewayFilterFactory<GlobalFilter.Conf
         });
     }
 
-
     @Data
     public static class Config{
         private String baseMessage;
