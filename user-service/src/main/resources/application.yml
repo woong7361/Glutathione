@@ -20,12 +20,13 @@ spring:
         web-allow-others: true
       path: /console
 
-  config:
-    import: "optional:configserver:http://localhost:40001/"
+#  config:
+#    import: "optional:configserver:http://localhost:40001/"
   cloud:
     config:
-      name: ecommerce
-      profile: dev
+      enabled: false
+#      name: ecommerce
+#      profile: dev
 
 server:
   port: 8888
