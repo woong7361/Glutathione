@@ -1,34 +1,9 @@
-server:
-  port: 30101
-
 spring:
-  application:
-    name: user-service
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://211.218.223.115:30201/mydb
-    username: root
-    password: woong7361
-  jpa:
-    hibernate:
-      ddl-auto: create
-
   config:
     # 특정 IP 에서만 config server 접근 가능 (ex. jenkins server)
-    import: "optional:configserver:http://211.218.223.115:30003/"
+    import: "optional:configserver:http://211.218.223.120:30003/"
   cloud:
     config:
-      name: ecommerce
+      name: userservice
       profile: prod
-
-eureka:
-  instance:
-    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-    prefer-ip-address: true
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://211.218.223.115:30001/eureka
 

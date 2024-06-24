@@ -35,10 +35,11 @@ public class UserController {
 
     @GetMapping("config-test")
     public String configTest() {
-        String secret = environment.getProperty("token.secret");
-        log.info(secret);
+//        String secret = environment.getProperty("token.secret");
+//        log.info(secret);
 
-        return secret;
+//        return secret;
+        return "";
     }
 
     @GetMapping("save-test")
