@@ -1,3 +1,6 @@
+server:
+  port: 8888
+
 spring:
   application:
     name: user-service
@@ -9,7 +12,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: create-drop
     show-sql: true
     generate-ddl: true
 
@@ -20,16 +23,9 @@ spring:
         web-allow-others: true
       path: /console
 
-#  config:
-#    import: "optional:configserver:http://localhost:40001/"
   cloud:
     config:
       enabled: false
-#      name: ecommerce
-#      profile: dev
-
-server:
-  port: 8888
 
 eureka:
   instance:
@@ -39,9 +35,11 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-#      defaultZone: http://121.134.166.240:8761/eureka
       defaultZone: http://localhost:8761/eureka
 
+token:
+  secret: local_secret_test_token_123456789123456789123456789123456789
+  expiration_time: 60000
 #logging:
 #  pattern:
 #    level: "%5p [%X{traceId:-},%X{spanId:-}]"

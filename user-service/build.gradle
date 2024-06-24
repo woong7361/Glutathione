@@ -34,17 +34,32 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-	//logback encoder
+	// validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// logback encoder
 	implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
 
 	// zipkin
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'io.github.openfeign:feign-micrometer'
 	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
-//	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+
+	// spring security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
 
 	runtimeOnly 'com.h2database:h2:2.2.220'
 	runtimeOnly 'com.mysql:mysql-connector-j'
+
+
+	// spring security test
+	testImplementation 'org.springframework.security:spring-security-test'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

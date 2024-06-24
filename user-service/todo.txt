@@ -1,0 +1,5 @@
+
+member
+    constraint 추가
+    validation 추가
+
