@@ -1,4 +1,5 @@
-loginId unique 박기
-not null constraint
-loginId 중복확인 API 생성
+
+member
+    constraint 추가
+    validation 추가
 

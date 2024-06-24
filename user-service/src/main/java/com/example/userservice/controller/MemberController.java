@@ -5,10 +5,11 @@ import com.example.userservice.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+import static com.example.userservice.constant.ResponseConstant.DUPLICATE_LOGIN_ID_RESPONSE_KEY;
 
 /**
  * 회원 관련 엔드포인트
@@ -19,15 +20,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
     private final MemberService memberService;
 
-    @GetMapping("health-check")
+    @GetMapping("/test")
     public String healthCheck() {
         log.info("health-check");
+
+        if (true) {
+            throw new IllegalArgumentException("msag");
+        }
 
         return "good";
     }
 
     /**
      * 회원 가입
+     *
      * @param member 회원가입 요청 파라미터
      * @return 201 created
      */
@@ -37,5 +43,19 @@ public class MemberController {
 
         return ResponseEntity.status(201)
                 .build();
+    }
+
+    /**
+     * 로그인 아이디 중복 확인
+     * @param loginId target login Id
+     * @return 중복 결과 json
+     */
+    @GetMapping("/members/loginId")
+    public ResponseEntity<Map<String, Boolean>> checkDuplicateLoginId(@RequestParam String loginId) {
+        Boolean result = memberService.isDuplicateLoginId(loginId);
+
+        return ResponseEntity
+                .ok()
+                .body(Map.of(DUPLICATE_LOGIN_ID_RESPONSE_KEY, result));
     }
 }

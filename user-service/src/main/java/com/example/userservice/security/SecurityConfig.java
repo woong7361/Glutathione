@@ -19,6 +19,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
     private final MemberDetailService memberDetailService;
     private final AuthTokenService tokenService;
+    private final CustomEntryPoint customEntryPoint;
 
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
@@ -33,12 +34,16 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/console/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/members", "POST")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/members/loginId", "GET")).permitAll()
+                        .requestMatchers("/test").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationManager(authenticationManager)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilter(new AuthenticationFilter(authenticationManager, tokenService));
+        http.exceptionHandling(ex -> ex.authenticationEntryPoint(customEntryPoint));
+
         http.headers((headers) -> headers.frameOptions((frameOptions) -> frameOptions.sameOrigin()));
 
         return http.build();

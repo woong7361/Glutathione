@@ -20,6 +20,7 @@ class TestSecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/console/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/members", "POST")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/members/loginId", "GET")).permitAll()
                 .anyRequest().authenticated()
         );
 

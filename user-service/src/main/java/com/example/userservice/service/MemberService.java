@@ -8,6 +8,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 /**
  * 회원 서비스
  */
@@ -28,5 +30,16 @@ public class MemberService {
 
         memberRepository.save(member);
         log.info("{} member save successful", member.getMemberName());
+    }
+
+    /**
+     * login Id 중복 확인
+     * @param loginId target login Id
+     * @return true/false
+     */
+    public Boolean isDuplicateLoginId(String loginId) {
+        Optional<Member> member = memberRepository.findByLoginId(loginId);
+
+        return member.isPresent();
     }
 }

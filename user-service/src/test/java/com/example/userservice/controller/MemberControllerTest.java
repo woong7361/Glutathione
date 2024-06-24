@@ -6,25 +6,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(MemberController.class)
@@ -32,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestSecurityConfig.class)
 class MemberControllerTest {
     public static final String SIGN_UP_URI = "/members";
+    public static final String CHECK_DUPLICATE_LOGIN_ID_URI = "/members/loginId";
 
     @MockBean
     private MemberService memberService;
@@ -60,6 +55,48 @@ class MemberControllerTest {
                             .content(objectMapper.writeValueAsString(memberRequest))
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isCreated());
+        }
+    }
+
+    @Nested
+    @DisplayName("로그인 아이디 중복 확인 컨트롤러 테스트")
+    public class CheckDuplicateLoginId {
+        @DisplayName("중복일때")
+        @Test
+        public void duplicate() throws Exception {
+            //given
+            String duplicateLoginId = "duplicate";
+
+            Mockito.when(memberService.isDuplicateLoginId(duplicateLoginId))
+                    .thenReturn(true);
+
+            //when
+            ResultActions action = mockMvc.perform(MockMvcRequestBuilders.get(CHECK_DUPLICATE_LOGIN_ID_URI)
+                    .param("loginId", duplicateLoginId));
+
+            //then
+            action
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.duplicate").value(true));
+        }
+
+        @DisplayName("중복이 아닐때")
+        @Test
+        public void notDuplicate() throws Exception{
+            //given
+            String notDuplicateLoginId = "duplicate";
+
+            Mockito.when(memberService.isDuplicateLoginId(notDuplicateLoginId))
+                    .thenReturn(false);
+
+            //when
+            ResultActions action = mockMvc.perform(MockMvcRequestBuilders.get(CHECK_DUPLICATE_LOGIN_ID_URI)
+                    .param("loginId", notDuplicateLoginId));
+
+            //then
+            action
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.duplicate").value(false));
         }
     }
 }
