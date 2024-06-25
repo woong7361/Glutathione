@@ -55,4 +55,15 @@ public class MemberService {
 
         findMember.update(updateMember);
     }
+
+    /**
+     * 회원 삭제
+     * @param memberId 회원 식별자
+     */
+    public void deleteMember(Long memberId) {
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException("not exist member", memberId));
+
+        memberRepository.deleteById(memberId);
+    }
 }

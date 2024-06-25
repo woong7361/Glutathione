@@ -33,7 +33,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests((authz) -> authz
                                 .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/console/**")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/members/**", "PUT")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/members/**")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/members", "POST")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/members/loginId", "GET")).permitAll()
 //                        .requestMatchers(new AntPathRequestMatcher("/members/**")).permitAll()

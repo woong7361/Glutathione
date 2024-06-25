@@ -126,4 +126,40 @@ class MemberServiceTest {
         }
     }
 
+
+    @Nested
+    @DisplayName("회원 삭제 테스트")
+    public class deleteMember {
+        @DisplayName("정상 처리")
+        @Test
+        public void success() throws Exception {
+            //given
+            Member targetMember = Member.builder()
+                    .memberId(1L)
+                    .loginId("targetId")
+                    .password("targetPassword")
+                    .memberName("targetName")
+                    .build();
+
+            Mockito.when(memberRepository.findById(targetMember.getMemberId()))
+                    .thenReturn(Optional.of(targetMember));
+            //when
+            //then
+            memberService.deleteMember(1L);
+        }
+
+        @DisplayName("식별자에 해당하는 회원이 없을때")
+        @Test
+        public void notExistMember() throws Exception{
+            //given
+            Mockito.when(memberRepository.findById(any()))
+                    .thenReturn(Optional.empty());
+
+            //when
+            //then
+            Assertions.assertThatThrownBy(() -> memberService.deleteMember(1L))
+                    .isInstanceOf(NotFoundException.class);
+        }
+    }
+
 }

@@ -60,6 +60,19 @@ public class MemberController {
     }
 
     /**
+     * 회원 탈퇴
+     * @param memberId 회원 식별자
+     * @return 200 OK
+     */
+    @DeleteMapping("/members/{memberId}")
+    public ResponseEntity<Object> deleteMember(@PathVariable Long memberId) {
+        memberService.deleteMember(memberId);
+
+        return ResponseEntity.ok()
+                .build();
+    }
+
+    /**
      * 로그인 아이디 중복 확인
      * @param loginId target login Id
      * @return 중복 결과 json
