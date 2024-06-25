@@ -31,12 +31,14 @@ public class SecurityConfig {
         http.csrf( (csrf) -> csrf.disable());
 
         http.authorizeHttpRequests((authz) -> authz
-                        .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/console/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/members", "POST")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/members/loginId", "GET")).permitAll()
-                        .requestMatchers("/test").permitAll()
-                        .anyRequest().authenticated()
+                                .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/console/**")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/members/**", "PUT")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/members", "POST")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/members/loginId", "GET")).permitAll()
+//                        .requestMatchers(new AntPathRequestMatcher("/members/**")).permitAll()
+                                .requestMatchers("/test").permitAll()
+                                .anyRequest().authenticated()
                 )
                 .authenticationManager(authenticationManager)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

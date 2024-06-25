@@ -1,5 +1,8 @@
 
 member
+    자세한 스펙? 필요
     constraint 추가
     validation 추가
 
+update member
+    어디까지 수정할것인지 - id? password? name?

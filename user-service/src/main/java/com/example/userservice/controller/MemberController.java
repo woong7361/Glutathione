@@ -46,6 +46,20 @@ public class MemberController {
     }
 
     /**
+     * 회원 정보 업데이트
+     * @param memberId 회원 식별자
+     * @param member 회원 정보 수정 요청 파라미터
+     * @return 200 ok
+     */
+    @PutMapping("/members/{memberId}")
+    public ResponseEntity<Object> updateMember(@PathVariable Long memberId, @RequestBody Member member) {
+        memberService.updateMember(memberId, member);
+
+        return ResponseEntity.ok()
+                .build();
+    }
+
+    /**
      * 로그인 아이디 중복 확인
      * @param loginId target login Id
      * @return 중복 결과 json
