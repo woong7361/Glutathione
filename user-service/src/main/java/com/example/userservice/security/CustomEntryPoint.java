@@ -21,6 +21,7 @@ public class CustomEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         log.info("authentication fail");
+        log.info("{}", authException);
 
         ObjectMapper objectMapper = new ObjectMapper();
 

@@ -1,6 +1,7 @@
 package com.example.userservice.service;
 
 import com.example.userservice.entity.Member;
+import com.example.userservice.error.exception.NotFoundException;
 import com.example.userservice.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,5 +42,28 @@ public class MemberService {
         Optional<Member> member = memberRepository.findByLoginId(loginId);
 
         return member.isPresent();
+    }
+
+    /**
+     * 회원 정보 업데이트
+     * @param memberId 회원 식별자
+     * @param updateMember 업데이트 요청 파라미터
+     */
+    public void updateMember(Long memberId, Member updateMember) {
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException("not exist member", memberId));
+
+        findMember.update(updateMember);
+    }
+
+    /**
+     * 회원 삭제
+     * @param memberId 회원 식별자
+     */
+    public void deleteMember(Long memberId) {
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException("not exist member", memberId));
+
+        memberRepository.deleteById(memberId);
     }
 }

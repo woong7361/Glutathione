@@ -38,4 +38,14 @@ public class Member {
     public void encodePassword(PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(password);
     }
+
+    /**
+     * 회원정보 업데이트
+     * @param updateMember 회원정보 업데이트 요청 파라미터
+     */
+    public void update(Member updateMember) {
+        this.loginId = updateMember.getLoginId();
+        this.password = updateMember.getPassword();
+        this.memberName = updateMember.getMemberName();
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.userservice.error;
 
+import com.example.userservice.error.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +50,34 @@ public class DefaultControllerAdvice {
 
         return ResponseEntity
                 .badRequest()
+                .body(ErrorResponse.builder()
+                        .message(exception.getMessage())
+                        .build()
+                );
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> notFoundExceptionHandler(NotFoundException exception) {
+        log.info("{} and PK: {}", exception.getMessage(), exception.getPk());
+
+        log.info("{}", exception);
+
+        return ResponseEntity
+                .badRequest()
+                .body(ErrorResponse.builder()
+                        .message(exception.getMessage() + " PK: " + exception.getPk())
+                        .build()
+                );
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> defualtExceptionHandler(RuntimeException exception) {
+        log.info("{}", exception.getMessage());
+
+        log.info("{}", exception);
+
+        return ResponseEntity
+                .internalServerError()
                 .body(ErrorResponse.builder()
                         .message(exception.getMessage())
                         .build()
