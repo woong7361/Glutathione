@@ -6,3 +6,14 @@ member
 
 update member
     어디까지 수정할것인지 - id? password? name?
+
+delete member
+    삭제하지말고 삭제표시 컬럼 추가
+
+response에 result 추가
+    아무리 봐도 아닌듯함, 균일성이 깨지는듯한 느낌?
+
+
+test
+    controller test 작성 필요
+    member service 에서 default member 필요함 (중복 제거)

@@ -3,6 +3,7 @@ package com.example.userservice.error;
 import com.example.userservice.error.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -56,6 +57,26 @@ public class DefaultControllerAdvice {
                 );
     }
 
+    /**
+     * 잘못된 데이터가 바인딩 되었을때 발생하는 에러
+     * SQL 문이 잘못되었거나 Data 가 잘못되었을경우
+     *
+     * @param exception 발생한 에러
+     * @return 400 bad request
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> notFoundExceptionHandler(DataIntegrityViolationException exception) {
+        log.error("error message: ", exception.getMessage());
+        log.error("{}", exception);
+
+        return ResponseEntity
+                .badRequest()
+                .body(ErrorResponse.builder()
+                        .message(exception.getMessage())
+                        .build()
+                );
+    }
+
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> notFoundExceptionHandler(NotFoundException exception) {
         log.info("{} and PK: {}", exception.getMessage(), exception.getPk());
@@ -70,11 +91,12 @@ public class DefaultControllerAdvice {
                 );
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> defualtExceptionHandler(RuntimeException exception) {
-        log.info("{}", exception.getMessage());
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> defualtExceptionHandler(Exception exception) {
+//        log.info("{}", exception.getMessage());
+        log.warn("따로 처리되지 않은 exception입니다. 서버에 알려주세요!");
 
-        log.info("{}", exception);
+        log.info("stack trace: {}", exception);
 
         return ResponseEntity
                 .internalServerError()
