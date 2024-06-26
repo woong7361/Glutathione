@@ -27,4 +27,20 @@ public class JwtEnvironment {
     public String getTokenExpirationTime() {
         return environment.getProperty("token.expiration_time");
     }
+
+    /**
+     * 관리자 비밀키를 반환한다.
+     * @return 비밀키 문자열
+     */
+    public String getAdminSecret() {
+        return environment.getProperty("admin.secret");
+    }
+
+    /**
+     * 관리자 토큰 만료시간을 반환한다.
+     * @return 만료시간 (단위 millis)를 반환
+     */
+    public String getAdminTokenExpirationTime() {
+        return environment.getProperty("admin.expiration_time");
+    }
 }

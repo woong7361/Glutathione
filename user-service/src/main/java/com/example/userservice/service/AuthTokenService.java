@@ -1,5 +1,6 @@
 package com.example.userservice.service;
 
+import com.example.userservice.entity.Admin;
 import com.example.userservice.security.MemberPrincipal;
 
 /**
@@ -19,5 +20,19 @@ public interface AuthTokenService {
      * @param token 토큰
      * @return subject
      */
-    public String getSubject(String token);
+    String getSubject(String token);
+
+    /**
+     * 관리자 인증 토큰 생성
+     * @param admin 관리자
+     * @return 토큰 문자열
+     */
+    String createAdminToken(Admin admin);
+
+    /**
+     * 관리자 토큰에서 subject 추출
+     * @param token token
+     * @return subject
+     */
+    String getAdminSubject(String token);
 }

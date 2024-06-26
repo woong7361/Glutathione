@@ -91,7 +91,6 @@ class MemberServiceTest {
             //given
             Member targetMember = Member.builder()
                     .memberId(1L)
-                    .loginId("targetId")
                     .password("targetPassword")
                     .memberName("targetName")
                     .build();
@@ -101,7 +100,6 @@ class MemberServiceTest {
 
             Member updateMember = Member.builder()
                     .memberId(1L)
-                    .loginId("updateId")
                     .password("updatePassword")
                     .memberName("updateName")
                     .build();
