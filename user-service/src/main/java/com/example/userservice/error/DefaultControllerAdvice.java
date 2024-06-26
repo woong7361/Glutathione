@@ -91,11 +91,12 @@ public class DefaultControllerAdvice {
                 );
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> defualtExceptionHandler(RuntimeException exception) {
-        log.info("{}", exception.getMessage());
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> defualtExceptionHandler(Exception exception) {
+//        log.info("{}", exception.getMessage());
+        log.warn("따로 처리되지 않은 exception입니다. 서버에 알려주세요!");
 
-        log.info("{}", exception);
+        log.info("stack trace: {}", exception);
 
         return ResponseEntity
                 .internalServerError()
