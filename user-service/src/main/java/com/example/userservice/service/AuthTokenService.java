@@ -12,4 +12,12 @@ public interface AuthTokenService {
      * @return 토큰 문자열
      */
     String createLoginToken(MemberPrincipal principal);
+
+
+    /**
+     * 토큰에서 subject 추출
+     * @param token 토큰
+     * @return subject
+     */
+    public String getSubject(String token);
 }

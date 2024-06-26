@@ -68,4 +68,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(200);
         response.addHeader(TOKEN_RESPONSE_HEADER_NAME, tokenService.createLoginToken(principal));
     }
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        //TODO 작성 예정
+        super.unsuccessfulAuthentication(request, response, failed);
+    }
 }
