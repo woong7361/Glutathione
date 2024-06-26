@@ -2,7 +2,9 @@ package com.example.userservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@DynamicInsert
 @Getter
 public class Member {
     @Id
@@ -26,10 +29,15 @@ public class Member {
     @Column(nullable = false)
     private String memberName;
 
+    @Column(nullable = false)
+    @ColumnDefault("false")
+    private Boolean isDelete;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
     @UpdateTimestamp
     private LocalDateTime modifiedAt;
+
 
     /**
      * 비밀번호 encoding
@@ -47,5 +55,12 @@ public class Member {
         this.loginId = updateMember.getLoginId();
         this.password = updateMember.getPassword();
         this.memberName = updateMember.getMemberName();
+    }
+
+    /**
+     * 회원 삭제 표시
+     */
+    public void delete() {
+        this.isDelete = true;
     }
 }

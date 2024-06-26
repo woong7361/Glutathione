@@ -19,6 +19,7 @@ import java.util.Optional;
 @Transactional
 @Slf4j
 public class MemberService {
+    public static final String NOT_EXIST_MEMBER_ERROR_MESSAGE = "not exist member";
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
@@ -51,19 +52,19 @@ public class MemberService {
      */
     public void updateMember(Long memberId, Member updateMember) {
         Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundException("not exist member", memberId));
+                .orElseThrow(() -> new NotFoundException(NOT_EXIST_MEMBER_ERROR_MESSAGE, memberId));
 
         findMember.update(updateMember);
     }
 
     /**
-     * 회원 삭제
+     * 회원 삭제 표시
      * @param memberId 회원 식별자
      */
     public void deleteMember(Long memberId) {
-        memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundException("not exist member", memberId));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException(NOT_EXIST_MEMBER_ERROR_MESSAGE, memberId));
 
-        memberRepository.deleteById(memberId);
+        member.delete();
     }
 }
