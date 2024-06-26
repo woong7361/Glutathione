@@ -48,7 +48,6 @@ public class Member {
      * @param updateMember 회원정보 업데이트 요청 파라미터
      */
     public void update(Member updateMember) {
-        this.loginId = updateMember.getLoginId();
         this.password = updateMember.getPassword();
         this.memberName = updateMember.getMemberName();
     }
