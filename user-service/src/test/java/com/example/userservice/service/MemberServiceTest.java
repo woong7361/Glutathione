@@ -2,6 +2,7 @@ package com.example.userservice.service;
 
 import com.example.userservice.entity.Member;
 import com.example.userservice.error.exception.NotFoundException;
+import com.example.userservice.repository.DeletedMemberRepository;
 import com.example.userservice.repository.MemberRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -18,8 +19,9 @@ import static org.mockito.ArgumentMatchers.any;
 
 class MemberServiceTest {
     private MemberRepository memberRepository = Mockito.mock(MemberRepository.class);
+    private DeletedMemberRepository deletedMemberRepository = Mockito.mock(DeletedMemberRepository.class);
     private BCryptPasswordEncoder bCryptPasswordEncoder = Mockito.mock(BCryptPasswordEncoder.class);
-    private MemberService memberService = new MemberService(memberRepository, bCryptPasswordEncoder);
+    private MemberService memberService = new MemberService(memberRepository, deletedMemberRepository, bCryptPasswordEncoder);
 
     @Nested
     @DisplayName("회원 생성 테스트")

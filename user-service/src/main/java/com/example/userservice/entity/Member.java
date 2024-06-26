@@ -29,10 +29,6 @@ public class Member {
     @Column(nullable = false)
     private String memberName;
 
-    @Column(nullable = false)
-    @ColumnDefault("false")
-    private Boolean isDelete;
-
     @CreationTimestamp
     private LocalDateTime createdAt;
     @UpdateTimestamp
@@ -55,12 +51,5 @@ public class Member {
         this.loginId = updateMember.getLoginId();
         this.password = updateMember.getPassword();
         this.memberName = updateMember.getMemberName();
-    }
-
-    /**
-     * 회원 삭제 표시
-     */
-    public void delete() {
-        this.isDelete = true;
     }
 }
