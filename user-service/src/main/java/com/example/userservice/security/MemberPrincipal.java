@@ -14,6 +14,12 @@ import java.util.Collection;
 @AllArgsConstructor
 public class MemberPrincipal implements UserDetails {
     private Member member;
+    private Boolean isEnabled;
+
+    public MemberPrincipal(Member member) {
+        this.member = member;
+        this.isEnabled = true;
+    }
 
     /**
      * @return 회원 비밀번호 반환
@@ -75,6 +81,6 @@ public class MemberPrincipal implements UserDetails {
      */
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.isEnabled;
     }
 }

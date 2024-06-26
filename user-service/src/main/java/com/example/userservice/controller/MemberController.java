@@ -2,10 +2,12 @@ package com.example.userservice.controller;
 
 import com.example.userservice.dto.MemberResponseDto;
 import com.example.userservice.entity.Member;
+import com.example.userservice.security.MemberPrincipal;
 import com.example.userservice.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -48,11 +50,13 @@ public class MemberController {
 
     /**
      * 회원 조회
+     *
      * @param memberId 조회할 회원 식별자
      * @return 200 OK, 회원 정보
      */
     @GetMapping("/members/{memberId}")
-    public ResponseEntity<MemberResponseDto> getMember(@PathVariable Long memberId) {
+    public ResponseEntity<MemberResponseDto> getMember(@PathVariable Long memberId, @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+
         MemberResponseDto responseDto = memberService.getMember(memberId);
 
         return ResponseEntity.ok(responseDto);
@@ -65,7 +69,9 @@ public class MemberController {
      * @return 200 ok
      */
     @PutMapping("/members/{memberId}")
-    public ResponseEntity<Object> updateMember(@PathVariable Long memberId, @RequestBody Member member) {
+    public ResponseEntity<Object> updateMember(
+            @PathVariable Long memberId,
+            @RequestBody Member member) {
         memberService.updateMember(memberId, member);
 
         return ResponseEntity.ok()

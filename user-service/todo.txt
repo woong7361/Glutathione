@@ -8,12 +8,20 @@ update member
     어디까지 수정할것인지 - id? password? name?
 
 delete member
-    삭제하지말고 삭제표시 컬럼 추가
+    삭제하지말고 삭제표시 컬럼 추가 <해결>
+    삭제한 유저의 토큰으로 요청 보낼때 - <token검증시 DB검증하면 되는데 Token의 장점을 지우는 경우>
 
-response에 result 추가
-    아무리 봐도 아닌듯함, 균일성이 깨지는듯한 느낌?
-
+admin
+    어떤것으로 자격증명 할것인가? -> 토큰으로
+    같은 토큰 필터 타는데요? 상관없나요?
 
 test
     controller test 작성 필요
     member service 에서 default member 필요함 (중복 제거)
+
+
+해결함
+
+response에 result 추가
+    아무리 봐도 아닌듯함, 균일성이 깨지는듯한 느낌?
+

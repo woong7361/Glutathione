@@ -1,6 +1,7 @@
 package com.example.userservice.security;
 
 import com.example.userservice.entity.Member;
+import com.example.userservice.error.ErrorResponse;
 import com.example.userservice.service.AuthTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -15,6 +16,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
@@ -67,5 +69,20 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         response.setStatus(200);
         response.addHeader(TOKEN_RESPONSE_HEADER_NAME, tokenService.createLoginToken(principal));
+    }
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        log.info("login failed: {}", failed.getMessage());
+
+        response.setStatus(401);
+        response.addHeader("Content-Type", "application/json; charset=UTF-8");
+
+        PrintWriter writer = response.getWriter();
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .message(failed.getMessage())
+                .build();
+
+        writer.write(new ObjectMapper().writeValueAsString(errorResponse));
     }
 }

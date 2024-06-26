@@ -26,6 +26,9 @@ public class MemberDetailService implements UserDetailsService {
         Member member = memberRepository.findByLoginId(username)
                 .orElseThrow(() -> new UsernameNotFoundException("user " + username + " not found"));
 
+        if (member.getIsDelete()) {
+            return new MemberPrincipal(member, false);
+        }
         return new MemberPrincipal(member);
     }
 }
