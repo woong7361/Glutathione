@@ -1,5 +1,6 @@
 package com.example.userservice.service;
 
+import com.example.userservice.dto.MemberResponseDto;
 import com.example.userservice.entity.DeletedMember;
 import com.example.userservice.entity.Member;
 import com.example.userservice.error.exception.NotFoundException;
@@ -85,5 +86,18 @@ public class MemberService {
 
         memberRepository.deleteById(memberId);
         deletedMemberRepository.save(deletedMember);
+    }
+
+    /**
+     * 회원 정보 조회
+     * @param memberId 조회할 회원 식별자
+     * @return 보여줄 회원 정보
+     */
+    public MemberResponseDto getMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException(NOT_EXIST_MEMBER_ERROR_MESSAGE, memberId));
+
+        ModelMapper mapper = ModelMapperFactory.create();
+        return mapper.map(member, MemberResponseDto.class);
     }
 }

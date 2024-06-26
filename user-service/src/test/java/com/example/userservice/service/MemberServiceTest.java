@@ -1,5 +1,6 @@
 package com.example.userservice.service;
 
+import com.example.userservice.dto.MemberResponseDto;
 import com.example.userservice.entity.Member;
 import com.example.userservice.error.exception.NotFoundException;
 import com.example.userservice.repository.DeletedMemberRepository;
@@ -160,6 +161,46 @@ class MemberServiceTest {
             //when
             //then
             Assertions.assertThatThrownBy(() -> memberService.deleteMember(1L))
+                    .isInstanceOf(NotFoundException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("회원 정보 조회 테스트")
+    public class getMemberTest {
+        @DisplayName("정상 처리")
+        @Test
+        public void success() throws Exception {
+            //given
+            Member targetMember = Member.builder()
+                    .memberId(1L)
+                    .loginId("targetId")
+                    .password("targetPassword")
+                    .memberName("targetName")
+                    .build();
+
+            Mockito.when(memberRepository.findById(targetMember.getMemberId()))
+                    .thenReturn(Optional.of(targetMember));
+
+            //when
+            MemberResponseDto responseDto = memberService.getMember(targetMember.getMemberId());
+
+            //then
+            assertThat(responseDto.getMemberId()).isEqualTo(targetMember.getMemberId());
+            assertThat(responseDto.getLoginId()).isEqualTo(targetMember.getLoginId());
+            assertThat(responseDto.getMemberName()).isEqualTo(targetMember.getMemberName());
+        }
+
+        @DisplayName("해당하는 회원이 없을때")
+        @Test
+        public void notFound() throws Exception{
+            //given
+            Mockito.when(memberRepository.findById(any()))
+                    .thenReturn(Optional.empty());
+
+            //when
+            //then
+            Assertions.assertThatThrownBy(() -> memberService.getMember(1L))
                     .isInstanceOf(NotFoundException.class);
         }
     }
