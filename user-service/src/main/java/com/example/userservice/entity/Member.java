@@ -29,6 +29,10 @@ public class Member {
     @Column(nullable = false)
     private String memberName;
 
+    @ColumnDefault("false")
+    @Column(nullable = false)
+    private Boolean isDelete;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
     @UpdateTimestamp
@@ -50,5 +54,9 @@ public class Member {
     public void update(Member updateMember) {
         this.password = updateMember.getPassword();
         this.memberName = updateMember.getMemberName();
+    }
+
+    public void delete() {
+        this.isDelete = true;
     }
 }
