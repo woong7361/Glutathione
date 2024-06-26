@@ -1,0 +1,38 @@
+server:
+  port: 30102
+
+spring:
+  application:
+    name: order-service
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:db
+    username: sa
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    generate-ddl: true
+
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+      path: /console
+
+  cloud:
+    config:
+      enabled: false
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
