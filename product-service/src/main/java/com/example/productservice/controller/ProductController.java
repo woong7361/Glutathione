@@ -1,4 +1,4 @@
-package com.example.productservice;
+package com.example.productservice.controller;
 
 
 import lombok.extern.slf4j.Slf4j;
