@@ -65,6 +65,15 @@ spring:
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
             - GlobalFilter
 
+        - id: product-service
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/product-service/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/product-service/(?<segment>.*), /$\{segment}
+            - GlobalFilter
+
 eureka:
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
