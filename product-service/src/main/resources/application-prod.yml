@@ -1,0 +1,9 @@
+spring:
+  config:
+    # 특정 IP 에서만 config server 접근 가능 (ex. jenkins server)
+    import: "optional:configserver:http://211.218.223.120:30003/"
+  cloud:
+    config:
+      name: productservice
+      profile: prod
+
