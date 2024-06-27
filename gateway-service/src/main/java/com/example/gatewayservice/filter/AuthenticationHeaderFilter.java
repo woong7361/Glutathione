@@ -1,6 +1,7 @@
 package com.example.gatewayservice.filter;
 
 import com.example.gatewayservice.service.JwtService;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -31,7 +32,9 @@ public class AuthenticationHeaderFilter extends AbstractGatewayFilterFactory<Aut
         this.jwtService = jwtService;
     }
 
+    @Data
     public static class Config {
+        private String propertyKey;
     }
 
     @Override
@@ -45,7 +48,7 @@ public class AuthenticationHeaderFilter extends AbstractGatewayFilterFactory<Aut
 
             String jwt = getJwtFrom(request);
 
-            if (!jwtService.verify(jwt)) {
+            if (!jwtService.verify(jwt, config.getPropertyKey())) {
                 return onError(exchange, JWT_TOKEN_IS_NOT_VALID, HttpStatus.UNAUTHORIZED);
             }
 

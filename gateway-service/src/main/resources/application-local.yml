@@ -14,15 +14,6 @@ spring:
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/user-service/test
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-            - AuthenticationHeaderFilter
-
-        - id: user-service
-          uri: lb://USER-SERVICE
-          predicates:
             - Path=/user-service/members/loginId
             - Method=GET
           filters:
@@ -37,7 +28,29 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-            - AuthenticationHeaderFilter
+            - name: AuthenticationHeaderFilter
+              args:
+                propertyKey: token.secret
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/admin/login
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - GlobalFilter
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/admin/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - name: AuthenticationHeaderFilter
+              args:
+                propertyKey: admin.token
 
         - id: user-service
           uri: lb://USER-SERVICE
@@ -48,14 +61,6 @@ spring:
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
             - GlobalFilter
 
-
-
-#      default-filters:
-#        - name: GlobalFilter
-#          args:
-#            baseMessage: Spring Cloud Gateway Global Filter
-#            preLogger: true
-#            PostLogger: true
 eureka:
   client:
     register-with-eureka: true
@@ -65,3 +70,6 @@ eureka:
 
 token:
   secret: local_secret_test_token_123456789123456789123456789123456789
+
+admin:
+  token: admin_secret_test_token_123456789123456789123456789123456789

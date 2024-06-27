@@ -18,15 +18,6 @@ spring:
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/user-service/test
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-            - AuthenticationHeaderFilter
-
-        - id: user-service
-          uri: lb://USER-SERVICE
-          predicates:
             - Path=/user-service/members/loginId
             - Method=GET
           filters:
@@ -41,7 +32,29 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-            - AuthenticationHeaderFilter
+            - name: AuthenticationHeaderFilter
+              args:
+                propertyKey: token.secret
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/admin/login
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - GlobalFilter
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/admin/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - name: AuthenticationHeaderFilter
+              args:
+                propertyKey: admin.token
 
         - id: user-service
           uri: lb://USER-SERVICE

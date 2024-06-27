@@ -17,8 +17,8 @@ import java.util.Base64;
 @Slf4j
 public class JwtService {
     private final Environment env;
-    public Boolean verify(String jwt) {
-        SecretKey signingKey = getSecretKey();
+    public Boolean verify(String jwt, String propertyKey) {
+        SecretKey signingKey = getSecretKey(propertyKey);
 
         String subject;
         try {
@@ -40,8 +40,8 @@ public class JwtService {
         return true;
     }
 
-    private SecretKey getSecretKey() {
-        byte[] secretKeyBytes = Base64.getEncoder().encode(env.getProperty("token.secret").getBytes());
+    private SecretKey getSecretKey(String propertyKey) {
+        byte[] secretKeyBytes = Base64.getEncoder().encode(env.getProperty(propertyKey).getBytes());
         SecretKey signingKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS512.getJcaName());
 
         return signingKey;

@@ -2,7 +2,6 @@ package com.example.gatewayservice.service;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,7 +10,6 @@ import org.springframework.core.env.Environment;
 
 import javax.crypto.SecretKey;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
@@ -39,7 +37,7 @@ class JwtServiceTest {
             String jwt = createJwt(key, "sub", "1000");
 
             //when
-            Boolean result = jwtService.verify(jwt);
+            Boolean result = jwtService.verify(jwt, "token.secret");
 
             //then
             assertThat(result).isTrue();
@@ -56,7 +54,7 @@ class JwtServiceTest {
             String jwt = createJwt(key, "sub", "-10000");
 
             //when
-            Boolean result = jwtService.verify(jwt);
+            Boolean result = jwtService.verify(jwt, "token.secret");
 
             //then
             assertThat(result).isFalse();
@@ -73,7 +71,7 @@ class JwtServiceTest {
             String jwt = createJwt(key, "sub", "-10000");
 
             //when
-            Boolean result = jwtService.verify(jwt + "123");
+            Boolean result = jwtService.verify(jwt + "123", "token.secret");
 
             //then
             assertThat(result).isFalse();
@@ -90,7 +88,7 @@ class JwtServiceTest {
             String jwt = createJwt(key + "1", "sub", "-10000");
 
             //when
-            Boolean result = jwtService.verify(jwt);
+            Boolean result = jwtService.verify(jwt, "token.secret");
 
             //then
             assertThat(result).isFalse();
