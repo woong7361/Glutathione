@@ -1,6 +1,7 @@
 package com.example.productservice.error.advice;
 
 import com.example.productservice.error.ErrorResponse;
+import com.example.productservice.error.exception.NotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +49,25 @@ public class DefaultControllerAdvice {
                 .badRequest()
                 .body(ErrorResponse.builder()
                         .message(exception.getMessage())
+                        .build()
+                );
+    }
+
+    /**
+     * db에 해당하는 데이터가 없을때 발생하는 exception handler
+     * @param exception data not found
+     * @return 400 bad request
+     */
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> notFoundExceptionHandler(NotFoundException exception) {
+        log.info("{} and Id: {}", exception.getMessage(), exception.getId());
+
+        log.info("{}", exception);
+
+        return ResponseEntity
+                .badRequest()
+                .body(ErrorResponse.builder()
+                        .message(exception.getMessage() + " Id: " + exception.getId())
                         .build()
                 );
     }
