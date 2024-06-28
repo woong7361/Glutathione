@@ -36,7 +36,6 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka
-
 token:
   secret: local_secret_test_token_123456789123456789123456789123456789
   expiration_time: 6000000
