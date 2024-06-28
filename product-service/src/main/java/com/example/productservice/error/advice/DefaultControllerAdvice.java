@@ -1,6 +1,7 @@
 package com.example.productservice.error.advice;
 
 import com.example.productservice.error.ErrorResponse;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -27,6 +28,43 @@ public class DefaultControllerAdvice {
 
         return ResponseEntity
                 .badRequest()
+                .body(ErrorResponse.builder()
+                        .message(exception.getMessage())
+                        .build()
+                );
+    }
+
+    /**
+     * db 제약조건을 지키지 않았을때 발생하는 exception handler
+     * @param exception 제약조건
+     * @return 400 bad request
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> constraintViolationException(ConstraintViolationException exception) {
+        log.info("database constraint exception: 제약조건을 지켜주세요!");
+        log.info("{}", exception);
+
+        return ResponseEntity
+                .badRequest()
+                .body(ErrorResponse.builder()
+                        .message(exception.getMessage())
+                        .build()
+                );
+    }
+
+
+    /**
+     * 그외 다른 exception handler
+     * @param exception 그 외
+     * @return 500 internal server error
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> exception(Exception exception) {
+        log.info("등록하지 않은 에러입니다. 서버에 알려주세요! {}", exception.getClass());
+        log.info("{}", exception);
+
+        return ResponseEntity
+                .internalServerError()
                 .body(ErrorResponse.builder()
                         .message(exception.getMessage())
                         .build()

@@ -1,7 +1,7 @@
 package com.example.productservice.converter;
 
 import com.example.productservice.Entity.Product;
-import com.example.productservice.dto.ProductCreateRequestDto;
+import com.example.productservice.dto.Product.ProductCreateRequestDto;
 
 /**
  * Product 클래스를 반환해주는 Converter Util
