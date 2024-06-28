@@ -10,6 +10,7 @@ spring:
       enabled: false
 
     gateway:
+
       routes:
         - id: user-service
           uri: lb://USER-SERVICE
@@ -39,7 +40,6 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-            - GlobalFilter
 
         - id: user-service
           uri: lb://USER-SERVICE
@@ -59,7 +59,6 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-            - GlobalFilter
 
 
         - id: product-service
@@ -82,7 +81,9 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/product-service/(?<segment>.*), /$\{segment}
-            - GlobalFilter
+
+      default-filters:
+        - name: GlobalFilter
 
 eureka:
   client:
