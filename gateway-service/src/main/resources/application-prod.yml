@@ -65,10 +65,24 @@ spring:
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
             - GlobalFilter
 
+
         - id: product-service
           uri: lb://PRODUCT-SERVICE
           predicates:
             - Path=/product-service/**
+            - Method=POST, PUT, DELETE
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/product-service/(?<segment>.*), /$\{segment}
+            - name: AuthenticationHeaderFilter
+              args:
+                propertyKey: admin.token
+
+        - id: product-service
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/product-service/**
+            - Method=GET
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/product-service/(?<segment>.*), /$\{segment}
