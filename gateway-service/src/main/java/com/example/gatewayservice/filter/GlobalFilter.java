@@ -24,17 +24,15 @@ public class GlobalFilter extends AbstractGatewayFilterFactory<GlobalFilter.Conf
             ServerHttpRequest request = exchange.getRequest();
             ServerHttpResponse response = exchange.getResponse();
 
-            log.info("Global Filter: base message -> {}", config.getBaseMessage());
+            log.info("Global Filter: request In <--------- {}", request.getPath());
 
-            // Custom Post Filter
             return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-                log.info("Global Filter: response code -> {}", response.getStatusCode());
+                log.info("Global Filter: response out code ----------> {}", response.getStatusCode());
             }));
         });
     }
 
     @Data
     public static class Config{
-        private String baseMessage;
     }
 }

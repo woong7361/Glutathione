@@ -43,7 +43,6 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-            - GlobalFilter
 
         - id: user-service
           uri: lb://USER-SERVICE
@@ -54,7 +53,7 @@ spring:
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
             - name: AuthenticationHeaderFilter
               args:
-                propertyKey: admin.token
+                propertyKey: admin.secret
 
         - id: user-service
           uri: lb://USER-SERVICE
@@ -63,7 +62,6 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-            - GlobalFilter
 
 
         - id: product-service
@@ -76,7 +74,7 @@ spring:
             - RewritePath=/product-service/(?<segment>.*), /$\{segment}
             - name: AuthenticationHeaderFilter
               args:
-                propertyKey: admin.token
+                propertyKey: admin.secret
 
         - id: product-service
           uri: lb://PRODUCT-SERVICE
@@ -86,7 +84,9 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/product-service/(?<segment>.*), /$\{segment}
-            - GlobalFilter
+
+      default-filters:
+        - name: GlobalFilter
 
 eureka:
   instance:
