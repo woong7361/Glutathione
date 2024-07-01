@@ -3,8 +3,9 @@ package com.example.productservice.service;
 import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductType;
 import com.example.productservice.converter.ProductConverter;
-import com.example.productservice.dto.Product.ProductCreateRequestDto;
-import com.example.productservice.dto.Product.ProductDetailResponseDto;
+import com.example.productservice.dto.product.ProductCreateRequestDto;
+import com.example.productservice.dto.product.ProductDetailResponseDto;
+import com.example.productservice.dto.product.ProductSearchRequestDto;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.error.exception.NotFoundException;
 import com.example.productservice.repository.ProductRepository;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -67,5 +69,16 @@ public class ProductService {
         return productRepository.findById(productId)
                 .map(product -> ProductConverter.toProductDetailResponseDto(product))
                 .orElseThrow(() -> new NotFoundException("product not exist", productId));
+    }
+
+    /**
+     * 제품 검색
+     *
+     * @param searchRequestDto 제품 검색 요청 인자
+     */
+    public List<ProductDetailResponseDto> search(ProductSearchRequestDto searchRequestDto) {
+        List<Product> search = productRepository.search(searchRequestDto);
+        return search.stream().map(pr -> ProductConverter.toProductDetailResponseDto(pr))
+                .collect(Collectors.toList());
     }
 }

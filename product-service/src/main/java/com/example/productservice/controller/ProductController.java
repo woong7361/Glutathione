@@ -3,8 +3,9 @@ package com.example.productservice.controller;
 
 import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductType;
-import com.example.productservice.dto.Product.ProductCreateRequestDto;
-import com.example.productservice.dto.Product.ProductDetailResponseDto;
+import com.example.productservice.dto.product.ProductCreateRequestDto;
+import com.example.productservice.dto.product.ProductDetailResponseDto;
+import com.example.productservice.dto.product.ProductSearchRequestDto;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.service.ProductService;
 import jakarta.validation.Valid;
@@ -26,6 +27,8 @@ import java.util.Map;
 public class ProductController {
     public static final String PRODUCT_ID_RESPONSE_KEY = "productId";
     public static final String PRODUCT_TYPES_RESPONSE_KEY = "types";
+    public static final String CONTENTS_RESPONSE_KEY = "contents";
+
     private final ProductService productService;
 
     @GetMapping("/health-check")
@@ -63,6 +66,7 @@ public class ProductController {
 
     /**
      * 제품 타입 생성
+     *
      * @param productTypeCreateRequestDto 요청 타입
      * @return 200 ok
      */
@@ -77,6 +81,7 @@ public class ProductController {
 
     /**
      * 제품 타입 전체 조회
+     *
      * @return 200 ok
      */
     @GetMapping("/products/types")
@@ -87,5 +92,17 @@ public class ProductController {
     }
 
 
+    /**
+     * 제품 검색
+     *
+     * @param searchRequestDto 제품 검색 요청
+     * @return 200 ok & 검색 결과
+     */
+    @GetMapping("/products/search")
+    public ResponseEntity<Map<String, List<ProductDetailResponseDto>>> productSearch(
+            @ModelAttribute ProductSearchRequestDto searchRequestDto) {
+        List<ProductDetailResponseDto> result = productService.search(searchRequestDto);
 
+        return ResponseEntity.ok(Map.of(CONTENTS_RESPONSE_KEY, result));
+    }
 }

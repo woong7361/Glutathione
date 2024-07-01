@@ -1,10 +1,9 @@
 package com.example.productservice.controller;
 
-import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductType;
 import com.example.productservice.converter.ProductConverter;
-import com.example.productservice.dto.Product.ProductCreateRequestDto;
-import com.example.productservice.dto.Product.ProductDetailResponseDto;
+import com.example.productservice.dto.product.ProductCreateRequestDto;
+import com.example.productservice.dto.product.ProductDetailResponseDto;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.dummy.DummyFactory;
 import com.example.productservice.service.ProductService;
@@ -214,4 +213,5 @@ class ProductControllerTest {
                     .andExpect(jsonPath("$.types").isArray());
         }
     }
+
 }

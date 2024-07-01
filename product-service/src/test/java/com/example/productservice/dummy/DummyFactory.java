@@ -2,7 +2,7 @@ package com.example.productservice.dummy;
 
 import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductType;
-import com.example.productservice.dto.Product.ProductCreateRequestDto;
+import com.example.productservice.dto.product.ProductCreateRequestDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

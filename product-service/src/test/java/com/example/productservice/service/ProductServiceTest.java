@@ -1,8 +1,8 @@
 package com.example.productservice.service;
 
 import com.example.productservice.Entity.Product;
-import com.example.productservice.dto.Product.ProductCreateRequestDto;
-import com.example.productservice.dto.Product.ProductDetailResponseDto;
+import com.example.productservice.dto.product.ProductCreateRequestDto;
+import com.example.productservice.dto.product.ProductDetailResponseDto;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.dummy.DummyFactory;
 import com.example.productservice.error.exception.NotFoundException;

@@ -1,8 +1,8 @@
 package com.example.productservice.converter;
 
 import com.example.productservice.Entity.Product;
-import com.example.productservice.dto.Product.ProductCreateRequestDto;
-import com.example.productservice.dto.Product.ProductDetailResponseDto;
+import com.example.productservice.dto.product.ProductCreateRequestDto;
+import com.example.productservice.dto.product.ProductDetailResponseDto;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration;
 

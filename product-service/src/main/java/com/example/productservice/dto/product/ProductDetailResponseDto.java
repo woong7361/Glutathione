@@ -1,4 +1,4 @@
-package com.example.productservice.dto.Product;
+package com.example.productservice.dto.product;
 
 import com.example.productservice.Entity.ProductStyle;
 import com.example.productservice.Entity.ProductType;
