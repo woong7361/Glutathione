@@ -4,7 +4,7 @@
 
     <springProfile name="prod">
         <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-            <destination>43.203.197.118:5000</destination>
+            <destination>211.218.223.120:5000</destination>
             <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
                 <providers>
                     <mdc />
