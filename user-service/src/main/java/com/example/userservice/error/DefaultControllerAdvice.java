@@ -1,6 +1,7 @@
 package com.example.userservice.error;
 
 import com.example.userservice.error.exception.NotFoundException;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -91,9 +92,27 @@ public class DefaultControllerAdvice {
                 );
     }
 
+    /**
+     * JWT관련 에러
+     * @param exception jwt exception
+     * @return 401 unAuthorized
+     */
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorResponse> jwtException(JwtException exception) {
+        log.warn("jwt exception: {}", exception.getMessage());
+
+        log.info("{}", exception);
+
+        return ResponseEntity
+                .badRequest()
+                .body(ErrorResponse.builder()
+                        .message(exception.getMessage())
+                        .build()
+                );
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> defualtExceptionHandler(Exception exception) {
-//        log.info("{}", exception.getMessage());
         log.warn("따로 처리되지 않은 exception입니다. 서버에 알려주세요!");
 
         log.info("stack trace: {}", exception);
