@@ -7,6 +7,8 @@ import com.example.productservice.dto.product.ProductCreateRequestDto;
 import com.example.productservice.dto.product.ProductDetailResponseDto;
 import com.example.productservice.dto.product.ProductSearchRequestDto;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
+import com.example.productservice.resolvehandler.AuthenticationPrincipal;
+import com.example.productservice.resolvehandler.Principal;
 import com.example.productservice.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -104,5 +106,18 @@ public class ProductController {
         List<ProductDetailResponseDto> result = productService.search(searchRequestDto);
 
         return ResponseEntity.ok(Map.of(CONTENTS_RESPONSE_KEY, result));
+    }
+
+    /**
+     * 제품 좋아요 추가
+     * @param productId 제품 식별자
+     * @param principal 사용자
+     * @return 200 ok
+     */
+    @PostMapping("/products/{productId}/favorite")
+    public ResponseEntity<Object> favoriteProduct(@PathVariable Long productId, @AuthenticationPrincipal Principal principal) {
+        productService.createFavorProduct(productId, principal.getMemberId());
+
+        return ResponseEntity.ok().build();
     }
 }

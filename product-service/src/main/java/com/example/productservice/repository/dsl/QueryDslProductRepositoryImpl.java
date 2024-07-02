@@ -1,7 +1,6 @@
 package com.example.productservice.repository.dsl;
 
 import com.example.productservice.Entity.Product;
-import com.example.productservice.Entity.ProductStyle;
 import com.example.productservice.Entity.QProduct;
 import com.example.productservice.dto.product.ProductSearchRequestDto;
 import com.querydsl.core.BooleanBuilder;
@@ -16,7 +15,6 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 
 import static com.example.productservice.Entity.QProduct.product;
-import static com.example.productservice.Entity.QProductStyle.productStyle;
 
 @RequiredArgsConstructor
 public class QueryDslProductRepositoryImpl implements QueryDslProductRepository {

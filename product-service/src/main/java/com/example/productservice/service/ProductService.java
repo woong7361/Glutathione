@@ -1,13 +1,16 @@
 package com.example.productservice.service;
 
 import com.example.productservice.Entity.Product;
+import com.example.productservice.Entity.ProductFavorite;
 import com.example.productservice.Entity.ProductType;
 import com.example.productservice.converter.ProductConverter;
 import com.example.productservice.dto.product.ProductCreateRequestDto;
 import com.example.productservice.dto.product.ProductDetailResponseDto;
 import com.example.productservice.dto.product.ProductSearchRequestDto;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
+import com.example.productservice.error.exception.DuplicateException;
 import com.example.productservice.error.exception.NotFoundException;
+import com.example.productservice.repository.ProductFavoriteRepository;
 import com.example.productservice.repository.ProductRepository;
 import com.example.productservice.repository.ProductTypeRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +29,7 @@ import java.util.stream.Collectors;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductTypeRepository productTypeRepository;
+    private final ProductFavoriteRepository productFavoriteRepository;
 
     /**
      * 제품 생성
@@ -81,4 +86,24 @@ public class ProductService {
         return search.stream().map(pr -> ProductConverter.toProductDetailResponseDto(pr))
                 .collect(Collectors.toList());
     }
+
+    /**
+     * 제품 좋아요 추가
+     * @param productId 제품 식별자
+     * @param memberId 사용자 식별자
+     */
+    public void createFavorProduct(Long productId, Long memberId) {
+        productFavoriteRepository.findByProductProductIdAndMemberId(productId, memberId)
+                .ifPresent( x -> {throw new DuplicateException("중복된 좋아요 요청입니다.");});
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("product not exist", productId));
+
+        ProductFavorite productFavorite = ProductFavorite.builder()
+                .product(product)
+                .memberId(memberId)
+                .build();
+        productFavoriteRepository.save(productFavorite);
+    }
+
 }

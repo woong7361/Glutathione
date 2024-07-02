@@ -7,3 +7,7 @@
 
 test
     추후 작성
+
+제품 좋아요
+    제품 서비스에 들어오는 현재 모든 요청이 admin 쪽
+    user-service token도 필요하다
