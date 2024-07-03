@@ -1,11 +1,14 @@
 package com.example.productservice.service;
 
 import com.example.productservice.Entity.Product;
+import com.example.productservice.Entity.ProductFavorite;
 import com.example.productservice.dto.product.ProductCreateRequestDto;
 import com.example.productservice.dto.product.ProductDetailResponseDto;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.dummy.DummyFactory;
+import com.example.productservice.error.exception.DuplicateException;
 import com.example.productservice.error.exception.NotFoundException;
+import com.example.productservice.repository.ProductFavoriteRepository;
 import com.example.productservice.repository.ProductRepository;
 import com.example.productservice.repository.ProductTypeRepository;
 import org.assertj.core.api.Assertions;
@@ -17,6 +20,7 @@ import org.mockito.Mockito;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 
 
@@ -24,8 +28,9 @@ class ProductServiceTest {
 
     ProductRepository productRepository = Mockito.mock(ProductRepository.class);
     ProductTypeRepository productTypeRepository = Mockito.mock(ProductTypeRepository.class);
+    ProductFavoriteRepository productFavoriteRepository = Mockito.mock(ProductFavoriteRepository.class);
 
-    ProductService productService = new ProductService(productRepository, productTypeRepository);
+    ProductService productService = new ProductService(productRepository, productTypeRepository, productFavoriteRepository);
 
     @Nested
     @DisplayName("제품 생성 서비스 테스트")
@@ -92,7 +97,7 @@ class ProductServiceTest {
                     .thenReturn(Optional.empty());
             //when
             //then
-            Assertions.assertThatThrownBy(() -> productService.getProductDetail(1L))
+            assertThatThrownBy(() -> productService.getProductDetail(1L))
                     .isInstanceOf(NotFoundException.class);
         }
     }
@@ -109,4 +114,89 @@ class ProductServiceTest {
             productService.getProductTypes();
         }
     }
+
+    @Nested
+    @DisplayName("제품 좋아요 추가")
+    public class createProductFavorite {
+        @DisplayName("정상 처리")
+        @Test
+        public void success() throws Exception {
+            //given
+            Long productId = 1L;
+            Long memberId = 2L;
+            Mockito.when(productFavoriteRepository.findByProductProductIdAndMemberId(productId, memberId))
+                    .thenReturn(Optional.empty());
+            Mockito.when(productRepository.findById(productId))
+                    .thenReturn(Optional.of(new Product()));
+            //when
+            //then
+            productService.createFavorProduct(productId, memberId);
+        }
+
+        @DisplayName("좋아요 요청이 이미 있을때")
+        @Test
+        public void existFavor () throws Exception{
+            //given
+            Long productId = 1L;
+            Long memberId = 2L;
+            Mockito.when(productFavoriteRepository.findByProductProductIdAndMemberId(productId, memberId))
+                    .thenReturn(Optional.of(new ProductFavorite()));
+
+            //when
+            //then
+            assertThatThrownBy(() -> productService.createFavorProduct(productId, memberId))
+                    .isInstanceOf(DuplicateException.class);
+
+        }
+
+        @DisplayName("제품이 존재하지 않을때")
+        @Test
+        public void notExistProduct() throws Exception {
+            //given
+            Long productId = 1L;
+            Long memberId = 2L;
+            Mockito.when(productFavoriteRepository.findByProductProductIdAndMemberId(productId, memberId))
+                    .thenReturn(Optional.empty());
+            Mockito.when(productRepository.findById(productId))
+                    .thenReturn(Optional.empty());
+            //when
+            //then
+            assertThatThrownBy(() -> productService.createFavorProduct(productId, memberId))
+                    .isInstanceOf(NotFoundException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("제품 좋아요 취소")
+    public class deleteProductFavorite {
+        @DisplayName("정상 처리")
+        @Test
+        public void success() throws Exception {
+            //given
+            Long productId = 1L;
+            Long memberId = 2L;
+            Mockito.when(productRepository.findById(productId))
+                    .thenReturn(Optional.of(new Product()));
+            //when
+            //then
+            productService.deleteFavorProduct(productId, memberId);
+        }
+
+        @DisplayName("제품이 존재하지 않을때")
+        @Test
+        public void notExistProduct() throws Exception {
+            //given
+            Long productId = 1L;
+            Long memberId = 2L;
+            Mockito.when(productRepository.findById(productId))
+                    .thenReturn(Optional.empty());
+            //when
+            //then
+            assertThatThrownBy(() -> productService.deleteFavorProduct(productId, memberId))
+                    .isInstanceOf(NotFoundException.class);
+        }
+    }
+
+
+
 }

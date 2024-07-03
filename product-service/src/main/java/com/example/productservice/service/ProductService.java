@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -106,4 +105,15 @@ public class ProductService {
         productFavoriteRepository.save(productFavorite);
     }
 
+    /**
+     * 제품 좋아요 취소
+     * @param productId 제품 식별자
+     * @param memberId 회원 식별자
+     */
+    public void deleteFavorProduct(Long productId, Long memberId) {
+        productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("product not exist", productId));
+
+        productFavoriteRepository.deleteByProductProductIdAndMemberId(productId, memberId);
+    }
 }

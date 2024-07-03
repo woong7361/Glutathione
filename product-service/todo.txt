@@ -11,3 +11,8 @@ test
 제품 좋아요
     제품 서비스에 들어오는 현재 모든 요청이 admin 쪽
     user-service token도 필요하다
+    -> gateway-service에 user-token 검증하도록 추가 필요
+
+
+제품 조회
+    추가할 것 : 자신이 좋아요를 표시했는지, image, 댓글(상세보기만),

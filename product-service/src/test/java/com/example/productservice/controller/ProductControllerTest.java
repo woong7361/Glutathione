@@ -28,8 +28,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,6 +38,7 @@ class ProductControllerTest {
     public static final String CREATE_PRODUCT_URI = "/products";
     public static final String GET_PRODUCTS_DETAIL_URI = "/products/{productId}";
     public static final String GET_PRODUCT_TYPES_URI = "/products/types";
+    public static final String PRODUCT_FAVORITE_CREATE_URI = "/products/{productId}/favorite";
 
     @MockBean
     private ProductService productService;
@@ -211,6 +211,52 @@ class ProductControllerTest {
             action
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.types").isArray());
+        }
+    }
+
+    @Nested
+    @DisplayName("제품 좋아요 추가 테스트")
+    public class createProductFavorite {
+        @DisplayName("정상 처리")
+        @Test
+
+        public void success() throws Exception {
+            //given
+            Long productId = 1L;
+            String token = "eyJhbGciOiJIUzUxMiJ9" +
+                    ".eyJleHAiOjE3MTk1NDgwNjUsImlhdCI6MTcxOTU0MjA2NSwic3ViIjoiMSJ9" +
+                    ".fJf5_0-cbQEqUIFCgiq4B4RJyjTMz3z2UtWla5wEaSaqi35LypcAfUAoZXjbFHipD6UMrc30-0vpS5bl9DTXzQ";
+
+            //when
+            ResultActions action = mockMvc.perform(post(PRODUCT_FAVORITE_CREATE_URI, productId)
+                    .header("Authorization", token));
+
+            //then
+            action
+                    .andExpect(status().isOk());
+        }
+    }
+
+    @Nested
+    @DisplayName("제품 좋아요 취소 테스트")
+    public class deleteProductFavorite {
+        @DisplayName("정상 처리")
+        @Test
+
+        public void success() throws Exception {
+            //given
+            Long productId = 1L;
+            String token = "eyJhbGciOiJIUzUxMiJ9" +
+                    ".eyJleHAiOjE3MTk1NDgwNjUsImlhdCI6MTcxOTU0MjA2NSwic3ViIjoiMSJ9" +
+                    ".fJf5_0-cbQEqUIFCgiq4B4RJyjTMz3z2UtWla5wEaSaqi35LypcAfUAoZXjbFHipD6UMrc30-0vpS5bl9DTXzQ";
+
+            //when
+            ResultActions action = mockMvc.perform(delete(PRODUCT_FAVORITE_CREATE_URI, productId)
+                    .header("Authorization", token));
+
+            //then
+            action
+                    .andExpect(status().isOk());
         }
     }
 

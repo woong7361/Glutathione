@@ -33,12 +33,6 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/health-check")
-    @Transactional
-    public String healthCheck() {
-        return "healthy";
-    }
-
     /**
      * 상품 추가(생성)
      *
@@ -117,6 +111,19 @@ public class ProductController {
     @PostMapping("/products/{productId}/favorite")
     public ResponseEntity<Object> favoriteProduct(@PathVariable Long productId, @AuthenticationPrincipal Principal principal) {
         productService.createFavorProduct(productId, principal.getMemberId());
+
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 제품 좋아요 삭제
+     * @param productId 제품 식별자
+     * @param principal 사용자
+     * @return 200 ok
+     */
+    @DeleteMapping("/products/{productId}/favorite")
+    public ResponseEntity<Object> deleteFavorite(@PathVariable Long productId, @AuthenticationPrincipal Principal principal) {
+        productService.deleteFavorProduct(productId, principal.getMemberId());
 
         return ResponseEntity.ok().build();
     }

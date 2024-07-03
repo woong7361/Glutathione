@@ -1,6 +1,7 @@
 package com.example.productservice.error.advice;
 
 import com.example.productservice.error.ErrorResponse;
+import com.example.productservice.error.exception.DuplicateException;
 import com.example.productservice.error.exception.NotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +69,24 @@ public class DefaultControllerAdvice {
                 .badRequest()
                 .body(ErrorResponse.builder()
                         .message(exception.getMessage() + " Id: " + exception.getId())
+                        .build()
+                );
+    }
+
+    /**
+     * 중복 데이터 에러
+     * @param exception 중복 요청 에러
+     * @return 400 bad request
+     */
+    @ExceptionHandler(DuplicateException.class)
+    public ResponseEntity<ErrorResponse> duplicateException(DuplicateException exception) {
+        log.info("중복된 요청입니다!: {}", exception.getMessage());
+        log.info("{}", exception);
+
+        return ResponseEntity
+                .badRequest()
+                .body(ErrorResponse.builder()
+                        .message(exception.getMessage())
                         .build()
                 );
     }
