@@ -19,6 +19,8 @@ public class QProductImage extends EntityPathBase<ProductImage> {
 
     public static final QProductImage productImage = new QProductImage("productImage");
 
+    public final BooleanPath isDelete = createBoolean("isDelete");
+
     public final StringPath originalName = createString("originalName");
 
     public final StringPath path = createString("path");

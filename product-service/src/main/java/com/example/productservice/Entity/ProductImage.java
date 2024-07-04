@@ -6,8 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 @Entity
+@DynamicInsert
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,4 +28,14 @@ public class ProductImage {
     private String physicalName;
     private String originalName;
     private String path;
+
+    @ColumnDefault(value = "false")
+    private boolean isDelete;
+
+    /**
+     * 파일 삭제 표시
+     */
+    public void delete() {
+        this.isDelete = true;
+    }
 }

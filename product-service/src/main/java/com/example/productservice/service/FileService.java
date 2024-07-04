@@ -8,6 +8,7 @@ import com.example.productservice.repository.ProductImageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -16,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class FileService {
@@ -63,6 +65,33 @@ public class FileService {
             //TODO custom exception 필요
             throw new IllegalArgumentException("file I/O exception");
         }
+    }
+
+    /**
+     * 이미지 수정
+     * @param multipartFile 새로운 이미지
+     * @param imageId       기존 이미지 식별자
+     * @return 새로운 이미지 식별자
+     */
+    public Long switchImage(MultipartFile multipartFile, Long imageId) {
+        ProductImage prevProductImage = productImageRepository.findById(imageId)
+                .orElseThrow(() -> new NotFoundException("이미지가 존재하지 않습니다.", imageId));
+        Long productId = prevProductImage.getProductId();
+
+        prevProductImage.delete();
+
+        return uploadFile(multipartFile, productId);
+    }
+
+    /**
+     * 이미지 삭제
+     * @param imageId 이미지 식별자
+     */
+    public void deleteImage(Long imageId) {
+        ProductImage productImage = productImageRepository.findById(imageId)
+                .orElseThrow(() -> new NotFoundException("이미지가 존재하지 않습니다.", imageId));
+
+        productImage.delete();
     }
 
 

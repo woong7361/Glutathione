@@ -32,6 +32,11 @@ public class FileController {
     }
 
 
+    /**
+     * 이미지 조회
+     * @param imageId 이미지 식별자
+     * @return 이미지 byte stream
+     */
     @GetMapping("/products/images/{imageId}")
     public ResponseEntity<byte[]> getFile(@PathVariable Long imageId) {
         byte[] fileStream = fileService.getFileStream(imageId);
@@ -41,4 +46,28 @@ public class FileController {
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(fileStream);
     }
+
+    /**
+     * 이미지 수정
+     * @param multipartFile 이미지
+     * @param imageId 이미지 식별자
+     * @return 200 ok
+     */
+    @PutMapping("/products/images/{imageId}")
+    public ResponseEntity<Map<String, Long>> switchFile(@RequestPart MultipartFile multipartFile, @PathVariable Long imageId) {
+        Long newImageId = fileService.switchImage(multipartFile, imageId);
+
+        return ResponseEntity.ok(Map.of(IMAGE_ID_RESPONSE_KEY, newImageId));
+    }
+
+    /**
+     * 이미지 삭제
+     */
+    @DeleteMapping("/products/images/{imageId}")
+    public ResponseEntity<Object> deleteFile(@PathVariable Long imageId) {
+        fileService.deleteImage(imageId);
+
+        return ResponseEntity.ok().build();
+    }
+
 }

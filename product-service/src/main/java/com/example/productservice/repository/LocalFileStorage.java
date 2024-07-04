@@ -40,11 +40,6 @@ public class LocalFileStorage implements FileStorage{
     }
 
     @Override
-    public void delete(Long fileId) {
-
-    }
-
-    @Override
     public File getFile(String path) {
         File file = new File(path);
         if (isFileNotExist(file)) {
