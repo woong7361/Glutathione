@@ -23,6 +23,9 @@ public class ProductCreateRequestDto {
     @NotBlank
     private String description;
 
+    @NotBlank
+    private String content;
+
     @NotNull
     private Long productTypeId;
 

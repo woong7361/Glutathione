@@ -21,6 +21,7 @@ public class ProductConverter {
     public static Product fromCreateRequestDto(ProductCreateRequestDto requestDto) {
         Product product = Product.builder()
                 .name(requestDto.getName())
+                .content(requestDto.getContent())
                 .description(requestDto.getDescription())
                 .unitPrice(requestDto.getUnitPrice())
                 .quantity(requestDto.getQuantity())

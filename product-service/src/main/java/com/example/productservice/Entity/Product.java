@@ -26,6 +26,8 @@ public class Product {
 
     private String name;
     private String description;
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
     @ManyToOne
     @JoinColumn(name = "product_type_id", nullable = false)

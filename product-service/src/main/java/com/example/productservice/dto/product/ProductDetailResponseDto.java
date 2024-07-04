@@ -20,6 +20,7 @@ public class ProductDetailResponseDto {
 
     private String name;
     private String description;
+    private String content;
     private ProductType productType;
     private List<String> productStyles;
 
