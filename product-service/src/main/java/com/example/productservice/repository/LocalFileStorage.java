@@ -26,9 +26,9 @@ public class LocalFileStorage implements FileStorage{
         {
             outputStream.write(bytes);
         } catch (IOException e) {
-            log.error("file I/O exception  fileName: {}, message: ", originalFileName, e.getMessage());
+            log.error("file I/O exception  fileName: {}, message: {}", originalFileName, e.getMessage());
             //TODO custom exception 필요
-            throw new IllegalArgumentException("파일 저장 에러");
+            throw new IllegalArgumentException("파일 저장 에러", e);
         }
 
         log.info("file: {} local에 파일저장 완료!", originalFileName);
