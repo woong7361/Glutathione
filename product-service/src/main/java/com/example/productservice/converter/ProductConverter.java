@@ -48,7 +48,7 @@ public class ProductConverter {
 
         ProductDetailResponseDto result = mapper.map(product, ProductDetailResponseDto.class);
         result.setProductStyles(product.getProductStyles());
-
+        result.setThumbnailImageId(product.getProductImages().get(0));
         return result;
     }
 }

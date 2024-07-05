@@ -1,5 +1,6 @@
 package com.example.productservice.dto.product;
 
+import com.example.productservice.Entity.ProductImage;
 import com.example.productservice.Entity.ProductStyle;
 import com.example.productservice.Entity.ProductType;
 import lombok.AllArgsConstructor;
@@ -21,8 +22,10 @@ public class ProductDetailResponseDto {
     private String name;
     private String description;
     private String content;
+
     private ProductType productType;
     private List<String> productStyles;
+    private Long thumbnailImageId;
 
     private Integer unitPrice;
     private Integer quantity;
@@ -30,9 +33,13 @@ public class ProductDetailResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public  void setProductStyles(List<ProductStyle> styles) {
+    public void setProductStyles(List<ProductStyle> styles) {
         this.productStyles = styles.stream()
                 .map(sty -> sty.getStyle())
                 .collect(Collectors.toList());
+    }
+
+    public void setThumbnailImageId(ProductImage productImage) {
+        this.thumbnailImageId = productImage.getProductImageId();
     }
 }

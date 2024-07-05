@@ -2,7 +2,6 @@ package com.example.productservice.service;
 
 import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductFavorite;
-import com.example.productservice.Entity.ProductImage;
 import com.example.productservice.Entity.ProductType;
 import com.example.productservice.converter.ProductConverter;
 import com.example.productservice.dto.product.ProductCreateRequestDto;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +27,7 @@ import java.util.stream.Collectors;
 @Transactional
 @Slf4j
 public class ProductService {
+    public static final String THUMBNAIL_ = "thumbnail_";
     private final ProductRepository productRepository;
     private final ProductTypeRepository productTypeRepository;
     private final ProductFavoriteRepository productFavoriteRepository;
@@ -78,7 +77,7 @@ public class ProductService {
      * @return response
      */
     public ProductDetailResponseDto getProductDetail(Long productId) {
-        return productRepository.findById(productId)
+        return productRepository.findByIdWithThumbnail(productId, THUMBNAIL_)
                 .map(product -> ProductConverter.toProductDetailResponseDto(product))
                 .orElseThrow(() -> new NotFoundException("product not exist", productId));
     }

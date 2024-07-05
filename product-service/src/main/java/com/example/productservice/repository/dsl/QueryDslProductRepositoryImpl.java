@@ -2,6 +2,7 @@ package com.example.productservice.repository.dsl;
 
 import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.QProduct;
+import com.example.productservice.Entity.QProductImage;
 import com.example.productservice.dto.product.ProductSearchRequestDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
@@ -13,8 +14,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.productservice.Entity.QProduct.product;
+import static com.example.productservice.Entity.QProductImage.productImage;
+import static com.example.productservice.Entity.QProductStyle.productStyle;
 
 @RequiredArgsConstructor
 public class QueryDslProductRepositoryImpl implements QueryDslProductRepository {
@@ -29,13 +33,38 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
 
     @Override
     public List<Product> search(ProductSearchRequestDto searchRequestDto) {
-        return queryFactory
-                .selectFrom(product)
-                .leftJoin(product.productStyles).fetchJoin()
+//        return queryFactory
+//                .selectFrom(product)
+//                .innerJoin(product.productStyles, productStyle)
+//                .innerJoin(product.productImages, productImage)
+//                .where(searchCondition(searchRequestDto))
+//                .orderBy(orderCondition(searchRequestDto))
+//                .offset(searchRequestDto.getOffset())
+//                .limit(searchRequestDto.getSize())
+//                .distinct()
+//                .fetch();
+
+        List<Product> productsWithStyles = queryFactory
+                .select(product)
+                .from(product)
+                .leftJoin(product.productStyles, productStyle).fetchJoin()
                 .where(searchCondition(searchRequestDto))
+                .distinct()
                 .orderBy(orderCondition(searchRequestDto))
                 .offset(searchRequestDto.getOffset())
                 .limit(searchRequestDto.getSize())
+                .fetch();
+
+        List<Long> ids = productsWithStyles.stream()
+                .map(Product::getProductId)
+                .collect(Collectors.toList());
+
+        return queryFactory
+                .selectFrom(product)
+                .leftJoin(product.productImages, productImage).fetchJoin()
+                .distinct()
+                .where(product.productId.in(ids)
+                        .and(productImage.originalName.like("thumbnail_%")))
                 .fetch();
     }
 
@@ -81,7 +110,7 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
     }
 
     private BooleanExpression productStyleHave(String style) {
-        return StringUtils.hasText(style) ? product.productStyles.any().style.eq(style) : null;
+        return StringUtils.hasText(style) ? productStyle.style.eq(style) : null;
 
     }
 
@@ -91,6 +120,10 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
 
     private BooleanExpression productNameLike(String keyword) {
         return StringUtils.hasText(keyword) ? product.name.contains(keyword) : null;
+    }
+
+    private BooleanExpression thumbnail() {
+        return product.productImages.any().originalName.like("thumbnail_%");
     }
 
 }
