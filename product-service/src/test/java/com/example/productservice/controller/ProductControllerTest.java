@@ -58,10 +58,13 @@ class ProductControllerTest {
             ProductCreateRequestDto requestDto = ProductCreateRequestDto.builder()
                     .name("name")
                     .description("desc")
+                    .content("content")
                     .productTypeId(1L)
                     .productStyles(List.of("s1, s2, s3"))
                     .unitPrice(100)
                     .quantity(20)
+                    .contentImageIds(List.of(1L, 2L, 3L))
+                    .thumbnailImageId(1L)
                     .build();
 
             Mockito.when(productService.createProduct(any()))

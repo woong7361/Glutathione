@@ -9,6 +9,7 @@ import com.example.productservice.dummy.DummyFactory;
 import com.example.productservice.error.exception.DuplicateException;
 import com.example.productservice.error.exception.NotFoundException;
 import com.example.productservice.repository.ProductFavoriteRepository;
+import com.example.productservice.repository.ProductImageRepository;
 import com.example.productservice.repository.ProductRepository;
 import com.example.productservice.repository.ProductTypeRepository;
 import org.assertj.core.api.Assertions;
@@ -29,8 +30,10 @@ class ProductServiceTest {
     ProductRepository productRepository = Mockito.mock(ProductRepository.class);
     ProductTypeRepository productTypeRepository = Mockito.mock(ProductTypeRepository.class);
     ProductFavoriteRepository productFavoriteRepository = Mockito.mock(ProductFavoriteRepository.class);
+    ProductImageRepository productImageRepository = Mockito.mock(ProductImageRepository.class);
 
-    ProductService productService = new ProductService(productRepository, productTypeRepository, productFavoriteRepository);
+    ProductService productService = new ProductService(
+            productRepository, productTypeRepository, productFavoriteRepository, productImageRepository);
 
     @Nested
     @DisplayName("제품 생성 서비스 테스트")

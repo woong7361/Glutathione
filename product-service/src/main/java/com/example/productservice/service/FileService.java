@@ -26,18 +26,17 @@ public class FileService {
 
     /**
      * 제품 이미지 업로드
+     *
      * @param multipartFile 제품 이미지
-     * @param productId 제품 식별자
      * @return 이미지 식별자
      */
-    public Long uploadFile(MultipartFile multipartFile, Long productId) {
+    public Long uploadFile(MultipartFile multipartFile) {
         FileSaveResultDto result = fileStorage.save(getBytes(multipartFile), multipartFile.getOriginalFilename());
 
         ProductImage productImage = ProductImage.builder()
                 .path(result.getPath())
                 .originalName(multipartFile.getOriginalFilename())
                 .physicalName(result.getPhysicalName())
-                .productId(productId)
                 .build();
 
         productImageRepository.save(productImage);
@@ -65,22 +64,6 @@ public class FileService {
             //TODO custom exception 필요
             throw new IllegalArgumentException("file I/O exception");
         }
-    }
-
-    /**
-     * 이미지 수정
-     * @param multipartFile 새로운 이미지
-     * @param imageId       기존 이미지 식별자
-     * @return 새로운 이미지 식별자
-     */
-    public Long switchImage(MultipartFile multipartFile, Long imageId) {
-        ProductImage prevProductImage = productImageRepository.findById(imageId)
-                .orElseThrow(() -> new NotFoundException("이미지가 존재하지 않습니다.", imageId));
-        Long productId = prevProductImage.getProductId();
-
-        prevProductImage.delete();
-
-        return uploadFile(multipartFile, productId);
     }
 
     /**

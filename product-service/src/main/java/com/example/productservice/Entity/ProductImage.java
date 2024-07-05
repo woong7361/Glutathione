@@ -20,10 +20,9 @@ public class ProductImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productImageId;
 
-    private Long productId;
-//    @ManyToOne
-//    @JoinColumn(name = "product_id")
-//    private Product product;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
     private String physicalName;
     private String originalName;
@@ -37,5 +36,20 @@ public class ProductImage {
      */
     public void delete() {
         this.isDelete = true;
+    }
+
+    /**
+     * 제품 FK 설정
+     * @param productId 제품 식별자
+     */
+    public void setProductId(Long productId) {
+        this.product = Product.builder()
+                .productId(productId)
+                .build();
+    }
+
+
+    public Long getProductId() {
+        return this.product == null ? null : this.product.getProductId();
     }
 }

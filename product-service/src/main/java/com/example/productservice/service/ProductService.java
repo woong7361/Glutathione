@@ -2,6 +2,7 @@ package com.example.productservice.service;
 
 import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductFavorite;
+import com.example.productservice.Entity.ProductImage;
 import com.example.productservice.Entity.ProductType;
 import com.example.productservice.converter.ProductConverter;
 import com.example.productservice.dto.product.ProductCreateRequestDto;
@@ -11,6 +12,7 @@ import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.error.exception.DuplicateException;
 import com.example.productservice.error.exception.NotFoundException;
 import com.example.productservice.repository.ProductFavoriteRepository;
+import com.example.productservice.repository.ProductImageRepository;
 import com.example.productservice.repository.ProductRepository;
 import com.example.productservice.repository.ProductTypeRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +32,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductTypeRepository productTypeRepository;
     private final ProductFavoriteRepository productFavoriteRepository;
+    private final ProductImageRepository productImageRepository;
 
     /**
      * 제품 생성
@@ -37,9 +41,13 @@ public class ProductService {
      */
     public Product createProduct(ProductCreateRequestDto createRequestDto) {
         Product product = ProductConverter.fromCreateRequestDto(createRequestDto);
-
         productRepository.save(product);
-        log.info("{} product save successful", product.getName());
+
+        productImageRepository.findAllById(createRequestDto.getContentImageIds())
+                .forEach(img -> img.setProductId(product.getProductId()));
+
+        productImageRepository.findById(createRequestDto.getThumbnailImageId())
+                .ifPresent(img -> img.setProductId(product.getProductId()));
 
         return product;
     }

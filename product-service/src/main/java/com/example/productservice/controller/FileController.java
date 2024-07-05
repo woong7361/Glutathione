@@ -24,9 +24,9 @@ public class FileController {
      * @param multipartFile 이미지
      * @return 200 ok
      */
-    @PostMapping("/products/{productId}/images")
-    public ResponseEntity<Map<String, Long>> saveFile(@RequestPart MultipartFile multipartFile, @PathVariable Long productId) {
-        Long imageId = fileService.uploadFile(multipartFile, productId);
+    @PostMapping("/products/images")
+    public ResponseEntity<Map<String, Long>> saveFile(@RequestPart MultipartFile multipartFile) {
+        Long imageId = fileService.uploadFile(multipartFile);
 
         return ResponseEntity.ok(Map.of(IMAGE_ID_RESPONSE_KEY, imageId));
     }
@@ -45,19 +45,6 @@ public class FileController {
                 .contentLength(fileStream.length)
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(fileStream);
-    }
-
-    /**
-     * 이미지 수정
-     * @param multipartFile 이미지
-     * @param imageId 이미지 식별자
-     * @return 200 ok
-     */
-    @PutMapping("/products/images/{imageId}")
-    public ResponseEntity<Map<String, Long>> switchFile(@RequestPart MultipartFile multipartFile, @PathVariable Long imageId) {
-        Long newImageId = fileService.switchImage(multipartFile, imageId);
-
-        return ResponseEntity.ok(Map.of(IMAGE_ID_RESPONSE_KEY, newImageId));
     }
 
     /**
