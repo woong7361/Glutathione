@@ -111,6 +111,9 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
             case "name":
                 path = product.name;
                 break;
+            case "quantity":
+                path = product.quantity;
+                break;
         }
 
         switch (searchRequestDto.getSortType()) {
