@@ -5,6 +5,7 @@ import com.example.productservice.service.ProductStyleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -22,8 +23,10 @@ public class productStyleController {
      * @return 200 ok
      */
     @GetMapping("/products/styles/most")
-    public ResponseEntity<Map<String, List<StyleCountDto>>> getMostStyles() {
-        List<StyleCountDto> mostStyles = productStyleService.getMostStyles();
+    public ResponseEntity<Map<String, List<StyleCountDto>>> getMostStyles(
+            @RequestParam(defaultValue = "5") Integer size
+    ) {
+        List<StyleCountDto> mostStyles = productStyleService.getMostStyles(size);
 
         return ResponseEntity.ok(Map.of(STYLES_RESPONSE_KEY, mostStyles));
     }

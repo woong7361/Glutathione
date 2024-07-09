@@ -19,7 +19,7 @@ public class ProductStyleService {
      * 가장 많이 있는 스타일 반환
      * @return list styles and count
      */
-    public List<StyleCountDto> getMostStyles() {
-        return productStyleRepository.findMostCommonStyle();
+    public List<StyleCountDto> getMostStyles(Integer size) {
+        return productStyleRepository.findMostCommonStyle(size);
     }
 }

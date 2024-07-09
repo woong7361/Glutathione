@@ -12,12 +12,13 @@ import java.util.List;
 @Repository
 public interface ProductStyleRepository extends JpaRepository<ProductStyle, Long>, QueryDslProductRepository {
 
-    @Query("SELECT ps.style as style, COUNT(ps) as count " +
-            "FROM ProductStyle ps " +
-            "GROUP BY ps.style " +
+    @Query(value = "SELECT product_style.style as style, COUNT(product_style.product_style_id) as count " +
+            "FROM product_style " +
+            "GROUP BY product_style.style " +
             "ORDER BY count DESC " +
-            "LIMIT 10")
-    List<StyleCountDto> findMostCommonStyle();
+            "LIMIT :size",
+            nativeQuery = true)
+    List<StyleCountDto> findMostCommonStyle(Integer size);
 
 //    @Query(value = "SELECT ranked.style, ranked.productId, ranked.name, ranked.style_count " +
 //            "FROM (" +
