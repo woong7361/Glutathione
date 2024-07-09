@@ -6,8 +6,10 @@ import com.example.productservice.Entity.ProductType;
 import com.example.productservice.dto.product.ProductCreateRequestDto;
 import com.example.productservice.dto.product.ProductDetailResponseDto;
 import com.example.productservice.dto.product.ProductSearchRequestDto;
+import com.example.productservice.dto.product.ProductSearchResponseDto;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.resolvehandler.AuthenticationPrincipal;
+import com.example.productservice.resolvehandler.MemberPrincipal;
 import com.example.productservice.resolvehandler.Principal;
 import com.example.productservice.service.ProductService;
 import jakarta.validation.Valid;
@@ -94,9 +96,10 @@ public class ProductController {
      * @return 200 ok & 검색 결과
      */
     @GetMapping("/products/search")
-    public ResponseEntity<Map<String, List<ProductDetailResponseDto>>> productSearch(
-            @ModelAttribute ProductSearchRequestDto searchRequestDto) {
-        List<ProductDetailResponseDto> result = productService.search(searchRequestDto);
+    public ResponseEntity<Map<String, List<ProductSearchResponseDto>>> productSearch(
+            @ModelAttribute ProductSearchRequestDto searchRequestDto,
+            @MemberPrincipal Principal principal) {
+        List<ProductSearchResponseDto> result = productService.search(searchRequestDto, principal.getMemberId());
 
         return ResponseEntity.ok(Map.of(CONTENTS_RESPONSE_KEY, result));
     }

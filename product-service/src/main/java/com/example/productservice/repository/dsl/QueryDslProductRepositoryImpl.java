@@ -1,49 +1,36 @@
 package com.example.productservice.repository.dsl;
 
-import com.example.productservice.Entity.Product;
-import com.example.productservice.Entity.QProduct;
-import com.example.productservice.Entity.QProductImage;
+import com.example.productservice.Entity.*;
+import com.example.productservice.converter.ProductConverter;
+import com.example.productservice.dto.product.ProductFavoriteDto;
 import com.example.productservice.dto.product.ProductSearchRequestDto;
+import com.example.productservice.dto.product.ProductSearchResponseDto;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Path;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.example.productservice.Entity.QProduct.product;
+import static com.example.productservice.Entity.QProductFavorite.productFavorite;
 import static com.example.productservice.Entity.QProductImage.productImage;
 import static com.example.productservice.Entity.QProductStyle.productStyle;
+import static com.querydsl.core.types.ExpressionUtils.count;
 
 @RequiredArgsConstructor
 public class QueryDslProductRepositoryImpl implements QueryDslProductRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    @Override
-    public List<Product> findProducts() {
-        QProduct r = product;
-        return queryFactory.selectFrom(r).where(r.productId.eq(1L)).fetch();
-    }
 
     @Override
-    public List<Product> search(ProductSearchRequestDto searchRequestDto) {
-//        return queryFactory
-//                .selectFrom(product)
-//                .innerJoin(product.productStyles, productStyle)
-//                .innerJoin(product.productImages, productImage)
-//                .where(searchCondition(searchRequestDto))
-//                .orderBy(orderCondition(searchRequestDto))
-//                .offset(searchRequestDto.getOffset())
-//                .limit(searchRequestDto.getSize())
-//                .distinct()
-//                .fetch();
-
+    public List<ProductSearchResponseDto> search(ProductSearchRequestDto searchRequestDto, Long memberId) {
         List<Product> productsWithStyles = queryFactory
                 .select(product)
                 .from(product)
@@ -59,13 +46,51 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
                 .map(Product::getProductId)
                 .collect(Collectors.toList());
 
-        return queryFactory
+        List<ProductFavoriteDto> favoriteList = queryFactory
+                .select(Projections.fields(ProductFavoriteDto.class,
+                        product.productId,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(count(productFavorite.productFavoriteId))
+                                        .from(productFavorite)
+                                        .where(productFavorite.product.productId.eq(product.productId)),
+                                "favoriteCount"),
+                        ExpressionUtils.as(
+                                JPAExpressions.select()
+                                        .from(productFavorite)
+                                        .where(productFavorite.product.productId.eq(product.productId)
+                                                .and(productFavorite.memberId.eq(memberId)))
+                                        .exists(),
+                                "isFavor")
+                        ))
+                .from(product)
+                .distinct()
+                .where(product.productId.in(ids))
+                .fetch();
+
+        List<Product> productsWithThumbnail = queryFactory
                 .selectFrom(product)
                 .leftJoin(product.productImages, productImage).fetchJoin()
                 .distinct()
                 .where(product.productId.in(ids)
                         .and(productImage.originalName.like("thumbnail_%")))
                 .fetch();
+
+        List<ProductSearchResponseDto> result = productsWithStyles.stream()
+                .map(pr -> ProductConverter.toProductSearchResponseDto(pr))
+                .toList();
+
+        Map<Long, ProductFavoriteDto> favoriteMap = favoriteList.stream()
+                .collect(Collectors.toMap(fl -> fl.getProductId(), fl -> fl));
+        Map<Long, Product> thumbnailMap = productsWithThumbnail.stream()
+                .collect(Collectors.toMap(pr -> pr.getProductId(), pr -> pr));
+
+        result.forEach(res -> {
+            res.setThumbnail(thumbnailMap.get(res.getProductId()).getProductImages().get(0));
+            res.setFavorCount(favoriteMap.get(res.getProductId()).getFavoriteCount());
+            res.setIsFavor(favoriteMap.get(res.getProductId()).getIsFavor());
+        });
+
+        return result;
     }
 
     private OrderSpecifier<?> orderCondition(ProductSearchRequestDto searchRequestDto) {

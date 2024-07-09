@@ -4,9 +4,7 @@ import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductFavorite;
 import com.example.productservice.Entity.ProductType;
 import com.example.productservice.converter.ProductConverter;
-import com.example.productservice.dto.product.ProductCreateRequestDto;
-import com.example.productservice.dto.product.ProductDetailResponseDto;
-import com.example.productservice.dto.product.ProductSearchRequestDto;
+import com.example.productservice.dto.product.*;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.error.exception.DuplicateException;
 import com.example.productservice.error.exception.NotFoundException;
@@ -20,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -77,20 +75,25 @@ public class ProductService {
      * @return response
      */
     public ProductDetailResponseDto getProductDetail(Long productId) {
-        return productRepository.findByIdWithThumbnail(productId, THUMBNAIL_)
+
+        ProductDetailResponseDto result = productRepository.findByIdWithThumbnail(productId, THUMBNAIL_)
                 .map(product -> ProductConverter.toProductDetailResponseDto(product))
                 .orElseThrow(() -> new NotFoundException("product not exist", productId));
+
+        ProductFavoriteDto favor = productRepository.findFavoriteCountById(productId, 1L);
+        result.setFavorCount(favor.getFavoriteCount());
+        result.setIsFavor(favor.getIsFavor());
+        return result;
     }
 
     /**
      * 제품 검색
      *
      * @param searchRequestDto 제품 검색 요청 인자
+     * @param memberId         검색한 회원 식별자
      */
-    public List<ProductDetailResponseDto> search(ProductSearchRequestDto searchRequestDto) {
-        List<Product> search = productRepository.search(searchRequestDto);
-        return search.stream().map(pr -> ProductConverter.toProductDetailResponseDto(pr))
-                .collect(Collectors.toList());
+    public List<ProductSearchResponseDto> search(ProductSearchRequestDto searchRequestDto, Long memberId) {
+        return productRepository.search(searchRequestDto, memberId);
     }
 
     /**
