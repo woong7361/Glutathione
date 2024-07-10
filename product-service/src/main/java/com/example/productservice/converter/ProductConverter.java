@@ -1,8 +1,9 @@
 package com.example.productservice.converter;
 
 import com.example.productservice.Entity.Product;
-import com.example.productservice.dto.Product.ProductCreateRequestDto;
-import com.example.productservice.dto.Product.ProductDetailResponseDto;
+import com.example.productservice.dto.product.ProductCreateRequestDto;
+import com.example.productservice.dto.product.ProductDetailResponseDto;
+import com.example.productservice.dto.product.ProductSearchResponseDto;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration;
 
@@ -21,6 +22,7 @@ public class ProductConverter {
     public static Product fromCreateRequestDto(ProductCreateRequestDto requestDto) {
         Product product = Product.builder()
                 .name(requestDto.getName())
+                .content(requestDto.getContent())
                 .description(requestDto.getDescription())
                 .unitPrice(requestDto.getUnitPrice())
                 .quantity(requestDto.getQuantity())
@@ -47,7 +49,19 @@ public class ProductConverter {
 
         ProductDetailResponseDto result = mapper.map(product, ProductDetailResponseDto.class);
         result.setProductStyles(product.getProductStyles());
+        result.setThumbnailImageId(product.getProductImages().get(0));
+        return result;
+    }
 
+    public static ProductSearchResponseDto toProductSearchResponseDto(Product product) {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration()
+                .setMatchingStrategy(STRICT)
+                .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE)
+                .setFieldMatchingEnabled(true);
+
+        ProductSearchResponseDto result = mapper.map(product, ProductSearchResponseDto.class);
+        result.setProductStyles(product.getProductStyles());
         return result;
     }
 }

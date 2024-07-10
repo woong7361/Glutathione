@@ -37,3 +37,5 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
+file:
+  path: /home/woong/workspace/project/msa-ci-cd/product-service/file/

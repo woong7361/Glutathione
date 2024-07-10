@@ -3,15 +3,19 @@ package com.example.productservice.controller;
 
 import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductType;
-import com.example.productservice.dto.Product.ProductCreateRequestDto;
-import com.example.productservice.dto.Product.ProductDetailResponseDto;
+import com.example.productservice.dto.product.ProductCreateRequestDto;
+import com.example.productservice.dto.product.ProductDetailResponseDto;
+import com.example.productservice.dto.product.ProductSearchRequestDto;
+import com.example.productservice.dto.product.ProductSearchResponseDto;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
+import com.example.productservice.resolvehandler.AuthenticationPrincipal;
+import com.example.productservice.resolvehandler.MemberPrincipal;
+import com.example.productservice.resolvehandler.Principal;
 import com.example.productservice.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,13 +30,9 @@ import java.util.Map;
 public class ProductController {
     public static final String PRODUCT_ID_RESPONSE_KEY = "productId";
     public static final String PRODUCT_TYPES_RESPONSE_KEY = "types";
-    private final ProductService productService;
+    public static final String CONTENTS_RESPONSE_KEY = "contents";
 
-    @GetMapping("/health-check")
-    @Transactional
-    public String healthCheck() {
-        return "healthy";
-    }
+    private final ProductService productService;
 
     /**
      * 상품 추가(생성)
@@ -63,6 +63,7 @@ public class ProductController {
 
     /**
      * 제품 타입 생성
+     *
      * @param productTypeCreateRequestDto 요청 타입
      * @return 200 ok
      */
@@ -77,6 +78,7 @@ public class ProductController {
 
     /**
      * 제품 타입 전체 조회
+     *
      * @return 200 ok
      */
     @GetMapping("/products/types")
@@ -87,5 +89,44 @@ public class ProductController {
     }
 
 
+    /**
+     * 제품 검색
+     *
+     * @param searchRequestDto 제품 검색 요청
+     * @return 200 ok & 검색 결과
+     */
+    @GetMapping("/products/search")
+    public ResponseEntity<Map<String, List<ProductSearchResponseDto>>> productSearch(
+            @ModelAttribute ProductSearchRequestDto searchRequestDto,
+            @MemberPrincipal Principal principal) {
+        List<ProductSearchResponseDto> result = productService.search(searchRequestDto, principal.getMemberId());
 
+        return ResponseEntity.ok(Map.of(CONTENTS_RESPONSE_KEY, result));
+    }
+
+    /**
+     * 제품 좋아요 추가
+     * @param productId 제품 식별자
+     * @param principal 사용자
+     * @return 200 ok
+     */
+    @PostMapping("/products/{productId}/favorite")
+    public ResponseEntity<Object> favoriteProduct(@PathVariable Long productId, @AuthenticationPrincipal Principal principal) {
+        productService.createFavorProduct(productId, principal.getMemberId());
+
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 제품 좋아요 삭제
+     * @param productId 제품 식별자
+     * @param principal 사용자
+     * @return 200 ok
+     */
+    @DeleteMapping("/products/{productId}/favorite")
+    public ResponseEntity<Object> deleteFavorite(@PathVariable Long productId, @AuthenticationPrincipal Principal principal) {
+        productService.deleteFavorProduct(productId, principal.getMemberId());
+
+        return ResponseEntity.ok().build();
+    }
 }
