@@ -26,6 +26,8 @@ public class Product {
 
     private String name;
     private String description;
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
     @ManyToOne
     @JoinColumn(name = "product_type_id", nullable = false)
@@ -33,6 +35,9 @@ public class Product {
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ProductStyle> productStyles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private List<ProductImage> productImages = new ArrayList<>();
 
     private Integer unitPrice;
     private Integer quantity;

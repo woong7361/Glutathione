@@ -1,12 +1,15 @@
 package com.example.productservice.service;
 
 import com.example.productservice.Entity.Product;
+import com.example.productservice.Entity.ProductFavorite;
 import com.example.productservice.Entity.ProductType;
 import com.example.productservice.converter.ProductConverter;
-import com.example.productservice.dto.Product.ProductCreateRequestDto;
-import com.example.productservice.dto.Product.ProductDetailResponseDto;
+import com.example.productservice.dto.product.*;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
+import com.example.productservice.error.exception.DuplicateException;
 import com.example.productservice.error.exception.NotFoundException;
+import com.example.productservice.repository.ProductFavoriteRepository;
+import com.example.productservice.repository.ProductImageRepository;
 import com.example.productservice.repository.ProductRepository;
 import com.example.productservice.repository.ProductTypeRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,14 +18,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class ProductService {
+    public static final String THUMBNAIL_ = "thumbnail_";
     private final ProductRepository productRepository;
     private final ProductTypeRepository productTypeRepository;
+    private final ProductFavoriteRepository productFavoriteRepository;
+    private final ProductImageRepository productImageRepository;
 
     /**
      * 제품 생성
@@ -31,9 +38,13 @@ public class ProductService {
      */
     public Product createProduct(ProductCreateRequestDto createRequestDto) {
         Product product = ProductConverter.fromCreateRequestDto(createRequestDto);
-
         productRepository.save(product);
-        log.info("{} product save successful", product.getName());
+
+        productImageRepository.findAllById(createRequestDto.getContentImageIds())
+                .forEach(img -> img.setProductId(product.getProductId()));
+
+        productImageRepository.findById(createRequestDto.getThumbnailImageId())
+                .ifPresent(img -> img.setProductId(product.getProductId()));
 
         return product;
     }
@@ -64,8 +75,55 @@ public class ProductService {
      * @return response
      */
     public ProductDetailResponseDto getProductDetail(Long productId) {
-        return productRepository.findById(productId)
+
+        ProductDetailResponseDto result = productRepository.findByIdWithThumbnail(productId, THUMBNAIL_)
                 .map(product -> ProductConverter.toProductDetailResponseDto(product))
                 .orElseThrow(() -> new NotFoundException("product not exist", productId));
+
+        ProductFavoriteDto favor = productRepository.findFavoriteCountById(productId, 1L);
+        result.setFavorCount(favor.getFavoriteCount());
+        result.setIsFavor(favor.getIsFavor());
+        return result;
+    }
+
+    /**
+     * 제품 검색
+     *
+     * @param searchRequestDto 제품 검색 요청 인자
+     * @param memberId         검색한 회원 식별자
+     */
+    public List<ProductSearchResponseDto> search(ProductSearchRequestDto searchRequestDto, Long memberId) {
+        return productRepository.search(searchRequestDto, memberId);
+    }
+
+    /**
+     * 제품 좋아요 추가
+     * @param productId 제품 식별자
+     * @param memberId 사용자 식별자
+     */
+    public void createFavorProduct(Long productId, Long memberId) {
+        productFavoriteRepository.findByProductProductIdAndMemberId(productId, memberId)
+                .ifPresent( x -> {throw new DuplicateException("중복된 좋아요 요청입니다.");});
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("product not exist", productId));
+
+        ProductFavorite productFavorite = ProductFavorite.builder()
+                .product(product)
+                .memberId(memberId)
+                .build();
+        productFavoriteRepository.save(productFavorite);
+    }
+
+    /**
+     * 제품 좋아요 취소
+     * @param productId 제품 식별자
+     * @param memberId 회원 식별자
+     */
+    public void deleteFavorProduct(Long productId, Long memberId) {
+        productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("product not exist", productId));
+
+        productFavoriteRepository.deleteByProductProductIdAndMemberId(productId, memberId);
     }
 }
