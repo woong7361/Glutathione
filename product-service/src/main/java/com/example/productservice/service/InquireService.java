@@ -2,12 +2,16 @@ package com.example.productservice.service;
 
 import com.example.productservice.Entity.ProductInquire;
 import com.example.productservice.Entity.ProductInquireAnswer;
+import com.example.productservice.converter.InquireConverter;
+import com.example.productservice.dto.inquire.InquireListResponseDto;
 import com.example.productservice.error.exception.NotFoundException;
 import com.example.productservice.repository.ProductInquireAnswerRepository;
 import com.example.productservice.repository.ProductInquireRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -67,5 +71,26 @@ public class InquireService {
      */
     public void deleteProductInquireAnswer(Long answerId) {
         productInquireAnswerRepository.deleteById(answerId);
+    }
+
+    /**
+     * 제품 문의 조회
+     * @param productId 제품 식별자
+     * @return 제품 문의들
+     */
+    public InquireListResponseDto getInquires(Long productId) {
+        List<InquireListResponseDto.InquireResponse> responseList = productInquireRepository.findByProductProductId(productId)
+                .stream().map((inquire) -> {
+                    InquireListResponseDto.InquireResponse inquireResponse =
+                            InquireConverter.toInquireResponse(inquire);
+                    inquireResponse.setAnswer(InquireConverter.toInquireAnswerResponse(inquire.getProductInquireAnswer()));
+                    inquireResponse.setProductId(inquire.getProduct().getProductId());
+
+                    return inquireResponse;
+                }).toList();
+
+        return InquireListResponseDto.builder()
+                .inquires(responseList)
+                .build();
     }
 }
