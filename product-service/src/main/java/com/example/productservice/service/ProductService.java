@@ -139,4 +139,25 @@ public class ProductService {
         productRepository.deleteById(productId);
 
     }
+
+    /**
+     * 제품 업데이트
+     * @param updateRequestDto 업데이트 요청 파라미터
+     * @param productId 제품 식별자
+     */
+    public void updateProduct(ProductUpdateRequestDto updateRequestDto, Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("product not exist", productId));
+
+        product.update(updateRequestDto);
+
+        productImageRepository.findAllById(updateRequestDto.getContentImageIds())
+                .forEach(img -> img.setProductId(product.getProductId()));
+        productImageRepository.findById(updateRequestDto.getThumbnailImageId())
+                .filter(img -> img.getProductId() == null)
+                .ifPresent(img -> img.setProductId(product.getProductId()));
+
+        productImageRepository.findAllById(updateRequestDto.getDeleteImageIds())
+                .forEach(img -> img.setProductId(null));
+    }
 }

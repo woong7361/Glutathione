@@ -1,6 +1,7 @@
 package com.example.productservice.Entity;
 
 
+import com.example.productservice.dto.product.ProductUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -73,5 +74,20 @@ public class Product {
         this.productType = ProductType.builder()
                 .productTypeId(id)
                 .build();
+    }
+
+    public void update(ProductUpdateRequestDto updateRequestDto) {
+        productStyles = new ArrayList<>();
+
+        name = updateRequestDto.getName();
+        content = updateRequestDto.getContent();
+        description = updateRequestDto.getDescription();
+
+        setProductTypeId(updateRequestDto.getProductTypeId());
+        updateRequestDto.getProductStyles()
+                .forEach((sty) -> addStyle(sty));
+
+        unitPrice = updateRequestDto.getUnitPrice();
+        quantity = updateRequestDto.getQuantity();
     }
 }

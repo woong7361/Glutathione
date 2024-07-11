@@ -3,10 +3,7 @@ package com.example.productservice.controller;
 
 import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductType;
-import com.example.productservice.dto.product.ProductCreateRequestDto;
-import com.example.productservice.dto.product.ProductDetailResponseDto;
-import com.example.productservice.dto.product.ProductSearchRequestDto;
-import com.example.productservice.dto.product.ProductSearchResponseDto;
+import com.example.productservice.dto.product.*;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.resolvehandler.AuthenticationPrincipal;
 import com.example.productservice.resolvehandler.MemberPrincipal;
@@ -48,6 +45,11 @@ public class ProductController {
                 .ok(Map.of(PRODUCT_ID_RESPONSE_KEY, product.getProductId()));
     }
 
+    /**
+     * 상품 삭제
+     * @param productId 삭제할 상품 식별자
+     * @return 200 ok
+     */
     @DeleteMapping("/products/{productId}")
     public ResponseEntity<Object> deleteProduct(@PathVariable Long productId) {
         productService.deleteProduct(productId);
@@ -55,6 +57,19 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * 상품 수정
+     * @param productId 제품 식별자
+     * @return 200 ok
+     */
+    @PutMapping("/products/{productId}")
+    public ResponseEntity<Object> updateProduct(
+            @Valid @RequestBody ProductUpdateRequestDto updateRequestDto,
+            @PathVariable Long productId) {
+        productService.updateProduct(updateRequestDto, productId);
+
+        return ResponseEntity.ok().build();
+    }
 
     /**
      * 제품 상세조회
