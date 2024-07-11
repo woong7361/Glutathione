@@ -2,10 +2,7 @@ package com.example.productservice.Entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -22,6 +19,7 @@ public class ProductImage {
 
     @ManyToOne
     @JoinColumn(name = "product_id")
+    @Setter
     private Product product;
 
     private String physicalName;

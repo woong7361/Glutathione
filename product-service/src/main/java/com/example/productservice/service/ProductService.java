@@ -150,14 +150,24 @@ public class ProductService {
                 .orElseThrow(() -> new NotFoundException("product not exist", productId));
 
         product.update(updateRequestDto);
+        productRepository.save(product);
 
         productImageRepository.findAllById(updateRequestDto.getContentImageIds())
-                .forEach(img -> img.setProductId(product.getProductId()));
+                .forEach(img -> {
+                    img.setProductId(product.getProductId());
+                    productImageRepository.save(img);
+                });
         productImageRepository.findById(updateRequestDto.getThumbnailImageId())
                 .filter(img -> img.getProductId() == null)
-                .ifPresent(img -> img.setProductId(product.getProductId()));
+                .ifPresent(img -> {
+                    img.setProductId(product.getProductId());
+                    productImageRepository.save(img);
+                });
 
         productImageRepository.findAllById(updateRequestDto.getDeleteImageIds())
-                .forEach(img -> img.setProductId(null));
+                .forEach(img -> {
+                    img.setProduct(null);
+                    productImageRepository.save(img);
+                });
     }
 }

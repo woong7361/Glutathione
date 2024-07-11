@@ -34,7 +34,7 @@ public class Product {
     @JoinColumn(name = "product_type_id", nullable = false)
     private ProductType productType;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductStyle> productStyles = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
@@ -77,7 +77,7 @@ public class Product {
     }
 
     public void update(ProductUpdateRequestDto updateRequestDto) {
-        productStyles = new ArrayList<>();
+        productStyles.clear();
 
         name = updateRequestDto.getName();
         content = updateRequestDto.getContent();

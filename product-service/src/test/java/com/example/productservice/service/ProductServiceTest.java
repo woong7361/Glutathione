@@ -4,14 +4,12 @@ import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductFavorite;
 import com.example.productservice.dto.product.ProductCreateRequestDto;
 import com.example.productservice.dto.product.ProductDetailResponseDto;
+import com.example.productservice.dto.product.ProductFavoriteDto;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.dummy.DummyFactory;
 import com.example.productservice.error.exception.DuplicateException;
 import com.example.productservice.error.exception.NotFoundException;
-import com.example.productservice.repository.ProductFavoriteRepository;
-import com.example.productservice.repository.ProductImageRepository;
-import com.example.productservice.repository.ProductRepository;
-import com.example.productservice.repository.ProductTypeRepository;
+import com.example.productservice.repository.*;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,9 +29,13 @@ class ProductServiceTest {
     ProductTypeRepository productTypeRepository = Mockito.mock(ProductTypeRepository.class);
     ProductFavoriteRepository productFavoriteRepository = Mockito.mock(ProductFavoriteRepository.class);
     ProductImageRepository productImageRepository = Mockito.mock(ProductImageRepository.class);
+    ProductStyleRepository productStyleRepository = Mockito.mock(ProductStyleRepository.class);
+    ProductInquireRepository productInquireRepository = Mockito.mock(ProductInquireRepository.class);
 
     ProductService productService = new ProductService(
-            productRepository, productTypeRepository, productFavoriteRepository, productImageRepository);
+            productRepository, productTypeRepository, productFavoriteRepository, productImageRepository,
+            productStyleRepository, productInquireRepository
+    );
 
     @Nested
     @DisplayName("제품 생성 서비스 테스트")
@@ -73,9 +75,12 @@ class ProductServiceTest {
         public void success() throws Exception {
             //given
             Product product = DummyFactory.getDummyProduct(1L);
+            ProductFavoriteDto productFavoriteDto = new ProductFavoriteDto(product.getProductId(), 100L, false);
 
-            Mockito.when(productRepository.findById(any()))
+            Mockito.when(productRepository.findByIdWithThumbnail(any(), any()))
                     .thenReturn(Optional.of(product));
+            Mockito.when(productRepository.findFavoriteCountById(any(), any()))
+                    .thenReturn(productFavoriteDto);
 
             //when
             ProductDetailResponseDto responseDto = productService.getProductDetail(1L);

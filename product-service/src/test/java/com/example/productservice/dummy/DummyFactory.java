@@ -1,6 +1,7 @@
 package com.example.productservice.dummy;
 
 import com.example.productservice.Entity.Product;
+import com.example.productservice.Entity.ProductImage;
 import com.example.productservice.Entity.ProductType;
 import com.example.productservice.dto.product.ProductCreateRequestDto;
 
@@ -22,6 +23,14 @@ public class DummyFactory {
                         .productTypeId(4534L)
                         .type("hat")
                         .build())
+                .productImages(List.of(
+                        ProductImage.builder()
+                                .productImageId(54634L)
+                                .originalName("original_name")
+                                .physicalName("physicalName")
+                                .path("/c/a/x/c/x/")
+                                .build()
+                ))
                 .build();
 
         product.addStyle("s1");
