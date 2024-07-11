@@ -26,4 +26,10 @@ public interface ProductFavoriteRepository extends JpaRepository<ProductFavorite
      * @param memberId 회원 식별자
      */
     void deleteByProductProductIdAndMemberId(Long productId, Long memberId);
+
+    /**
+     * 제품에 대한 모든 좋아요 삭제
+     * @param productId 제품 식별자
+     */
+    void deleteByProductProductId(Long productId);
 }

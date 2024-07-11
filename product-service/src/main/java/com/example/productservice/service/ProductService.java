@@ -8,10 +8,7 @@ import com.example.productservice.dto.product.*;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.error.exception.DuplicateException;
 import com.example.productservice.error.exception.NotFoundException;
-import com.example.productservice.repository.ProductFavoriteRepository;
-import com.example.productservice.repository.ProductImageRepository;
-import com.example.productservice.repository.ProductRepository;
-import com.example.productservice.repository.ProductTypeRepository;
+import com.example.productservice.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +27,8 @@ public class ProductService {
     private final ProductTypeRepository productTypeRepository;
     private final ProductFavoriteRepository productFavoriteRepository;
     private final ProductImageRepository productImageRepository;
+    private final ProductStyleRepository productStyleRepository;
+    private final ProductInquireRepository productInquireRepository;
 
     /**
      * 제품 생성
@@ -125,5 +124,19 @@ public class ProductService {
                 .orElseThrow(() -> new NotFoundException("product not exist", productId));
 
         productFavoriteRepository.deleteByProductProductIdAndMemberId(productId, memberId);
+    }
+
+    /**
+     * 제품 삭제
+     * @param productId 삭제할 제품 식별자
+     */
+    public void deleteProduct(Long productId) {
+        productImageRepository.deleteByproductId(productId);
+        productStyleRepository.deleteByProductProductId(productId);
+        productFavoriteRepository.deleteByProductProductId(productId);
+        productInquireRepository.deleteByProductProductId(productId);
+
+        productRepository.deleteById(productId);
+
     }
 }

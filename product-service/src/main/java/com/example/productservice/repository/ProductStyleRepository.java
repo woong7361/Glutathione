@@ -20,6 +20,8 @@ public interface ProductStyleRepository extends JpaRepository<ProductStyle, Long
             nativeQuery = true)
     List<StyleCountDto> findMostCommonStyle(Integer size);
 
+    void deleteByProductProductId(Long productId);
+
 //    @Query(value = "SELECT ranked.style, ranked.productId, ranked.name, ranked.style_count " +
 //            "FROM (" +
 //            "    SELECT ps.style as style, p.productId as productId, p.name as name, " +

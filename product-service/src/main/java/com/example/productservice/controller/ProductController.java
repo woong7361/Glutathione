@@ -48,6 +48,14 @@ public class ProductController {
                 .ok(Map.of(PRODUCT_ID_RESPONSE_KEY, product.getProductId()));
     }
 
+    @DeleteMapping("/products/{productId}")
+    public ResponseEntity<Object> deleteProduct(@PathVariable Long productId) {
+        productService.deleteProduct(productId);
+
+        return ResponseEntity.ok().build();
+    }
+
+
     /**
      * 제품 상세조회
      *
