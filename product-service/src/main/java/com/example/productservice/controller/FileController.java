@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
 
 /**
- * 파일 관련 컨트롤러
+ * 파일 관련 엔드포인트
  */
 @RestController
 @RequiredArgsConstructor

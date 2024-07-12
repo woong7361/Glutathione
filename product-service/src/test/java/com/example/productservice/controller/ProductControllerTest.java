@@ -129,7 +129,7 @@ class ProductControllerTest {
             ProductDetailResponseDto detailDto = ProductConverter.toProductDetailResponseDto(
                     DummyFactory.getDummyProduct(156341L));
 
-            Mockito.when(productService.getProductDetail(any()))
+            Mockito.when(productService.getProductDetail(any(), any()))
                     .thenReturn(detailDto);
 
             //when

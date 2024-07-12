@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -71,15 +70,16 @@ public class ProductService {
      * 제품 상세 조회
      *
      * @param productId 제품 식별자
+     * @param memberId 회원 식별자
      * @return response
      */
-    public ProductDetailResponseDto getProductDetail(Long productId) {
+    public ProductDetailResponseDto getProductDetail(Long productId, Long memberId) {
 
         ProductDetailResponseDto result = productRepository.findByIdWithThumbnail(productId, THUMBNAIL_)
                 .map(product -> ProductConverter.toProductDetailResponseDto(product))
                 .orElseThrow(() -> new NotFoundException("product not exist", productId));
 
-        ProductFavoriteDto favor = productRepository.findFavoriteCountById(productId, 1L);
+        ProductFavoriteDto favor = productRepository.findFavoriteCountById(productId, memberId);
         result.setFavorCount(favor.getFavoriteCount());
         result.setIsFavor(favor.getIsFavor());
         return result;

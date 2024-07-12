@@ -52,4 +52,15 @@ public class DummyFactory {
 
         return requestDto;
     }
+
+    public static ProductImage getDummyProductImage() {
+        return ProductImage.builder()
+                .originalName("originalName")
+                .physicalName("physicalName")
+                .path("path")
+                .productImageId(546451L)
+                .product(getDummyProduct(45341L))
+                .isDelete(false)
+                .build();
+    }
 }

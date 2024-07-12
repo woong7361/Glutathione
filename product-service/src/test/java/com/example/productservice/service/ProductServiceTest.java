@@ -76,6 +76,7 @@ class ProductServiceTest {
             //given
             Product product = DummyFactory.getDummyProduct(1L);
             ProductFavoriteDto productFavoriteDto = new ProductFavoriteDto(product.getProductId(), 100L, false);
+            Long memberId = 5431L;
 
             Mockito.when(productRepository.findByIdWithThumbnail(any(), any()))
                     .thenReturn(Optional.of(product));
@@ -83,7 +84,7 @@ class ProductServiceTest {
                     .thenReturn(productFavoriteDto);
 
             //when
-            ProductDetailResponseDto responseDto = productService.getProductDetail(1L);
+            ProductDetailResponseDto responseDto = productService.getProductDetail(1L, memberId);
 
             //then
             Assertions.assertThat(responseDto.getName()).isEqualTo(product.getName());
@@ -105,7 +106,7 @@ class ProductServiceTest {
                     .thenReturn(Optional.empty());
             //when
             //then
-            assertThatThrownBy(() -> productService.getProductDetail(1L))
+            assertThatThrownBy(() -> productService.getProductDetail(1L, 453415L))
                     .isInstanceOf(NotFoundException.class);
         }
     }

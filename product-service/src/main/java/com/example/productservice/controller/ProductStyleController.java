@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-public class productStyleController {
+public class ProductStyleController {
     public static final String STYLES_RESPONSE_KEY = "styles";
 
     private final ProductStyleService productStyleService;

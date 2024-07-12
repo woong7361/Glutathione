@@ -2,6 +2,7 @@ package com.example.productservice.error.advice;
 
 import com.example.productservice.error.ErrorResponse;
 import com.example.productservice.error.exception.DuplicateException;
+import com.example.productservice.error.exception.FileException;
 import com.example.productservice.error.exception.NotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -90,6 +91,25 @@ public class DefaultControllerAdvice {
                         .build()
                 );
     }
+
+    /**
+     * 파일 관련 에러 I/O
+     * @param exception 파일 에러
+     * @return 500 server error
+     */
+    @ExceptionHandler(FileException.class)
+    public ResponseEntity<ErrorResponse> fileException(FileException exception) {
+        log.info("파일 관련 에러입니다 {}", exception.getMessage());
+        log.info("{}", exception);
+
+        return ResponseEntity
+                .status(500)
+                .body(ErrorResponse.builder()
+                        .message(exception.getMessage())
+                        .build()
+                );
+    }
+
 
 
     /**

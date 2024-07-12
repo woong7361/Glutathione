@@ -2,6 +2,7 @@ package com.example.productservice.service;
 
 import com.example.productservice.Entity.ProductImage;
 import com.example.productservice.dto.file.FileSaveResultDto;
+import com.example.productservice.error.exception.FileException;
 import com.example.productservice.error.exception.NotFoundException;
 import com.example.productservice.repository.FileStorage;
 import com.example.productservice.repository.ProductImageRepository;
@@ -61,8 +62,7 @@ public class FileService {
         } catch (FileNotFoundException e) {
             throw new NotFoundException("이미지가 존재하지 않습니다.", imageId);
         } catch (IOException e) {
-            //TODO custom exception 필요
-            throw new IllegalArgumentException("file I/O exception");
+            throw new FileException(e.getMessage());
         }
     }
 
