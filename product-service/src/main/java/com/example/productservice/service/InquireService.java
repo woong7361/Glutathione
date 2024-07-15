@@ -21,8 +21,8 @@ import java.util.List;
 public class InquireService {
     private final ProductInquireRepository productInquireRepository;
     private final ProductInquireAnswerRepository productInquireAnswerRepository;
-
     private final MemberServiceClient memberServiceClient;
+
     /**
      * 제품 문의 작성
      * @param productId 제품 식별자
@@ -35,8 +35,6 @@ public class InquireService {
                 .memberId(memberId)
                 .build();
         inquire.setProductId(productId);
-
-        MemberDto member = memberServiceClient.getMember(memberId);
 
         productInquireRepository.save(inquire);
     }
@@ -93,6 +91,12 @@ public class InquireService {
 
                     return inquireResponse;
                 }).toList();
+
+        responseList.forEach(inq -> {
+            //TODO 쿼리가 많이 나간다.
+            MemberDto memberDto = memberServiceClient.getMember(inq.getMemberId());
+            inq.setMemberName(memberDto.getMemberName());
+        });
 
         return InquireListResponseDto.builder()
                 .inquires(responseList)
