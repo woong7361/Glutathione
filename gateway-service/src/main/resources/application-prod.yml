@@ -18,12 +18,10 @@ spring:
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/user-service/members/loginId
-            - Method=GET
+            - Path= /user-service/members/loginId, /user-service/admin/login
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
@@ -35,15 +33,6 @@ spring:
             - name: AuthenticationHeaderFilter
               args:
                 propertyKey: token.secret
-
-        - id: user-service
-          uri: lb://USER-SERVICE
-          predicates:
-            - Path=/user-service/admin/login
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
@@ -54,7 +43,6 @@ spring:
             - name: AuthenticationHeaderFilter
               args:
                 propertyKey: admin.secret
-
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
@@ -67,6 +55,17 @@ spring:
         - id: product-service
           uri: lb://PRODUCT-SERVICE
           predicates:
+            - Path=/product-service/products/{productId}/favorite, /product-service/products/{productId}/inquires, /product-service/products/inquires/{inquireId}
+            - Method=POST, PUT, DELETE
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/product-service/(?<segment>.*), /$\{segment}
+            - name: AuthenticationHeaderFilter
+              args:
+                propertyKey: token.secret
+        - id: product-service
+          uri: lb://PRODUCT-SERVICE
+          predicates:
             - Path=/product-service/**
             - Method=POST, PUT, DELETE
           filters:
@@ -75,7 +74,6 @@ spring:
             - name: AuthenticationHeaderFilter
               args:
                 propertyKey: admin.secret
-
         - id: product-service
           uri: lb://PRODUCT-SERVICE
           predicates:

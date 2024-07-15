@@ -1,7 +1,10 @@
 package com.example.gatewayservice.service;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,10 +40,8 @@ class JwtServiceTest {
             String jwt = createJwt(key, "sub", "1000");
 
             //when
-            Boolean result = jwtService.verify(jwt, "token.secret");
-
             //then
-            assertThat(result).isTrue();
+            jwtService.verify(jwt, "token.secret");
         }
 
         @DisplayName("만료일이 지났을때")
@@ -54,10 +55,9 @@ class JwtServiceTest {
             String jwt = createJwt(key, "sub", "-10000");
 
             //when
-            Boolean result = jwtService.verify(jwt, "token.secret");
-
             //then
-            assertThat(result).isFalse();
+            Assertions.assertThatThrownBy(() -> jwtService.verify(jwt, "token.secret"))
+                    .isInstanceOf(ExpiredJwtException.class);
         }
 
         @DisplayName("오염된 문자열")
@@ -71,10 +71,9 @@ class JwtServiceTest {
             String jwt = createJwt(key, "sub", "-10000");
 
             //when
-            Boolean result = jwtService.verify(jwt + "123", "token.secret");
-
             //then
-            assertThat(result).isFalse();
+            Assertions.assertThatThrownBy(() -> jwtService.verify(jwt + "123", "token.secret"))
+                    .isInstanceOf(JwtException.class);
         }
 
         @DisplayName("secretKey가 다를때")
@@ -88,10 +87,9 @@ class JwtServiceTest {
             String jwt = createJwt(key + "1", "sub", "-10000");
 
             //when
-            Boolean result = jwtService.verify(jwt, "token.secret");
-
             //then
-            assertThat(result).isFalse();
+            Assertions.assertThatThrownBy(() -> jwtService.verify(jwt, "token.secret"))
+                    .isInstanceOf(JwtException.class);
         }
     }
 
