@@ -4,7 +4,9 @@ import com.example.productservice.Entity.ProductInquire;
 import com.example.productservice.Entity.ProductInquireAnswer;
 import com.example.productservice.converter.InquireConverter;
 import com.example.productservice.dto.inquire.InquireListResponseDto;
+import com.example.productservice.dto.member.MemberDto;
 import com.example.productservice.error.exception.NotFoundException;
+import com.example.productservice.feign.MemberServiceClient;
 import com.example.productservice.repository.ProductInquireAnswerRepository;
 import com.example.productservice.repository.ProductInquireRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class InquireService {
     private final ProductInquireRepository productInquireRepository;
     private final ProductInquireAnswerRepository productInquireAnswerRepository;
 
+    private final MemberServiceClient memberServiceClient;
     /**
      * 제품 문의 작성
      * @param productId 제품 식별자
@@ -32,6 +35,8 @@ public class InquireService {
                 .memberId(memberId)
                 .build();
         inquire.setProductId(productId);
+
+        MemberDto member = memberServiceClient.getMember(memberId);
 
         productInquireRepository.save(inquire);
     }
