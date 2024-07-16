@@ -18,7 +18,7 @@ public class Banner {
 
     private String url;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "banner_image_id", nullable = false)
     private BannerImage bannerImage;
 }

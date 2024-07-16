@@ -39,7 +39,7 @@ public class FileController {
      */
     @GetMapping("/products/images/{imageId}")
     public ResponseEntity<byte[]> getFile(@PathVariable Long imageId) {
-        byte[] fileStream = fileService.getFileStream(imageId);
+        byte[] fileStream = fileService.getProductFileStream(imageId);
         return ResponseEntity
                 .ok()
                 .contentLength(fileStream.length)
@@ -55,6 +55,21 @@ public class FileController {
         fileService.deleteImage(imageId);
 
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 배너 이미지 조회
+     * @param imageId 이미지 식별자
+     * @return 이미지 byte stream
+     */
+    @GetMapping("/banners/images/{imageId}")
+    public ResponseEntity<byte[]> getBannerImage(@PathVariable Long imageId) {
+        byte[] fileStream = fileService.getBannerFileStream(imageId);
+        return ResponseEntity
+                .ok()
+                .contentLength(fileStream.length)
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(fileStream);
     }
 
 }
