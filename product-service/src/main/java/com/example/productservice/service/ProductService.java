@@ -4,6 +4,7 @@ import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductFavorite;
 import com.example.productservice.Entity.ProductType;
 import com.example.productservice.converter.ProductConverter;
+import com.example.productservice.dto.common.PageRequest;
 import com.example.productservice.dto.product.*;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.error.exception.DuplicateException;
@@ -11,6 +12,7 @@ import com.example.productservice.error.exception.NotFoundException;
 import com.example.productservice.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -169,5 +171,19 @@ public class ProductService {
                     img.setProduct(null);
                     productImageRepository.save(img);
                 });
+    }
+
+    /**
+     * 회원이 좋아하는 제품 조회
+     *
+     * @param memberId    회원 식별자
+     * @param pageRequest 페이징 요청 인자
+     * @return 제품 리스트
+     */
+    public List<FavoriteProductResponseDto> getProductByMemberFavorite(Long memberId, PageRequest pageRequest) {
+        Pageable pageable = org.springframework.data.domain.PageRequest.of(pageRequest.getPage(), pageRequest.getSize());
+        List<FavoriteProductResponseDto> productByMemberFavorites
+                = productRepository.findProductByMemberFavorite(memberId, pageable);
+        return productByMemberFavorites;
     }
 }

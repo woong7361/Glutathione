@@ -3,6 +3,7 @@ package com.example.productservice.controller;
 
 import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductType;
+import com.example.productservice.dto.common.PageRequest;
 import com.example.productservice.dto.product.*;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.resolvehandler.AuthenticationPrincipal;
@@ -151,5 +152,17 @@ public class ProductController {
         productService.deleteFavorProduct(productId, principal.getMemberId());
 
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 회원이 좋아요 표시한 제품 보여주기
+     *
+     * @param principal 인증된 회원 객체
+     * @return 상품 리스트
+     */
+    @GetMapping("/members/products/favorites")
+    public List<FavoriteProductResponseDto> getMemberFavorites(
+            @AuthenticationPrincipal Principal principal, @ModelAttribute PageRequest pageRequest) {
+        return productService.getProductByMemberFavorite(principal.getMemberId(), pageRequest);
     }
 }
