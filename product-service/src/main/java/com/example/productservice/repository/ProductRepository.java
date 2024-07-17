@@ -45,7 +45,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, QueryDs
             "       WHERE ps.product.productId = pr.productId) AS productStylesString, " +
             "   (SELECT pi.productImageId " +
             "       FROM ProductImage pi" +
-            "       WHERE pi.product.productId = :memberId AND pi.originalName LIKE 'thumbnail_%') AS thumbnailImageId, " +
+            "       WHERE pi.product.productId = pr.productId AND pi.originalName LIKE 'thumbnail_%') AS thumbnailImageId, " +
             "   (SELECT count(pf.productFavoriteId) " +
             "       FROM ProductFavorite pf " +
             "       WHERE pf.product.productId = pr.productId) AS favorCount, " +
