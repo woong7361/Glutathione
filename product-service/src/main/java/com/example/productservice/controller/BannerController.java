@@ -48,12 +48,28 @@ public class BannerController {
 
     /**
      * 배너 삭제
+     *
      * @param bannerId 배너 식별자
      * @return 200 ok
      */
     @DeleteMapping("/banners/{bannerId}")
     public ResponseEntity<Object> deleteBanner(@PathVariable Long bannerId) {
         bannerService.deleteBanner(bannerId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 배너 수정
+     * @param bannerId 배너 식별자
+     * @param multipartFile 배너 이미지
+     * @param url 배너 url
+     * @return 200 ok
+     */
+    @PutMapping("/banners/{bannerId}")
+    public ResponseEntity<Object> updateBanner(
+            @PathVariable Long bannerId, @RequestParam MultipartFile multipartFile, @RequestParam String url) {
+        bannerService.updateBanner(bannerId, multipartFile, url);
 
         return ResponseEntity.ok().build();
     }

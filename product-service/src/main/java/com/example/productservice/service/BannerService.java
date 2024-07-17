@@ -5,6 +5,7 @@ import com.example.productservice.Entity.BannerImage;
 import com.example.productservice.dto.banner.BannerResponseDto;
 import com.example.productservice.dto.file.FileSaveResultDto;
 import com.example.productservice.error.exception.FileException;
+import com.example.productservice.error.exception.NotFoundException;
 import com.example.productservice.repository.BannerRepository;
 import com.example.productservice.repository.FileStorage;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +70,21 @@ public class BannerService {
         bannerRepository.deleteById(bannerId);
     }
 
+    /**
+     * 배너 수정
+     * @param bannerId 배너 식별자
+     * @param multipartFile 배너 이미지
+     * @param url 배너 url
+     */
+    public void updateBanner(Long bannerId, MultipartFile multipartFile, String url) {
+        Banner banner = bannerRepository.findById(bannerId)
+                .orElseThrow(() -> new NotFoundException("해당하는 배너가 없습니다.", bannerId));
+
+        FileSaveResultDto fileSaveResultDto = fileStorage.save(getBytes(multipartFile), multipartFile.getOriginalFilename());
+
+        banner.update(fileSaveResultDto, url);
+    }
+
     private static byte[] getBytes(MultipartFile multipartFile) {
         try {
             return multipartFile.getBytes();
@@ -77,4 +93,5 @@ public class BannerService {
             throw new FileException("파일 I/O - READ 에러");
         }
     }
+
 }
