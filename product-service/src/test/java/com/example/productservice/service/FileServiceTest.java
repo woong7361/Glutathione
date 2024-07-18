@@ -4,6 +4,7 @@ import com.example.productservice.Entity.ProductImage;
 import com.example.productservice.dto.file.FileSaveResultDto;
 import com.example.productservice.dummy.DummyFactory;
 import com.example.productservice.error.exception.NotFoundException;
+import com.example.productservice.repository.BannerImageRepository;
 import com.example.productservice.repository.FileStorage;
 import com.example.productservice.repository.ProductImageRepository;
 import org.assertj.core.api.Assertions;
@@ -24,8 +25,8 @@ class FileServiceTest {
 
     FileStorage fileStorage = Mockito.mock(FileStorage.class);
     ProductImageRepository productImageRepository = Mockito.mock(ProductImageRepository.class);
-
-    FileService fileService = new FileService(fileStorage, productImageRepository);
+    BannerImageRepository bannerImageRepository = Mockito.mock(BannerImageRepository.class);
+    FileService fileService = new FileService(fileStorage, productImageRepository, bannerImageRepository);
 
     @Nested
     @DisplayName("이미지 업로드 테스트")
