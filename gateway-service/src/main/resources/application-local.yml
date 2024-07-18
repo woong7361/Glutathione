@@ -80,6 +80,19 @@ spring:
             - RemoveRequestHeader=Cookie
             - RewritePath=/product-service/(?<segment>.*), /$\{segment}
 
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order-service/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/order-service/(?<segment>.*), /$\{segment}
+            - name: AuthenticationHeaderFilter
+              args:
+                propertyKey: token.secret
+
+
       default-filters:
         - name: GlobalFilter
 
