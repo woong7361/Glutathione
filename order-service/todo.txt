@@ -3,3 +3,20 @@
 장바구니
     cartId
     memberId
+
+쿠폰
+    target product Id -> productId
+
+    member Id 필요
+
+    할인율 필요
+
+    쿠폰 이름 필요
+
+    쿠폰 설명
+
+    기한은 나중에
+
+
+gateway 뚫어야함
+file.path 필요 -> prod에
