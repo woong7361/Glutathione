@@ -87,6 +87,17 @@ spring:
         - id: order-service
           uri: lb://ORDER-SERVICE
           predicates:
+            - Path=/order-service/coupon, /order-service/coupon/{couponId}
+            - Method=POST, PUT, DELETE
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/order-service/(?<segment>.*), /$\{segment}
+            - name: AuthenticationHeaderFilter
+              args:
+                propertyKey: admin.secret
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
             - Path=/order-service/**
           filters:
             - RemoveRequestHeader=Cookie
