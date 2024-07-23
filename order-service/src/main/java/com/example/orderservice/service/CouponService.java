@@ -5,6 +5,7 @@ import com.example.orderservice.dto.file.FileSaveResultDto;
 import com.example.orderservice.entity.Coupon;
 import com.example.orderservice.entity.CouponImage;
 import com.example.orderservice.entity.MemberCoupon;
+import com.example.orderservice.error.exception.DuplicateException;
 import com.example.orderservice.repository.CouponRepository;
 import com.example.orderservice.repository.FileStorage;
 import com.example.orderservice.repository.MemberCouponRepository;
@@ -63,12 +64,13 @@ public class CouponService {
     }
 
     /**
-     * 쿠폰 발급
+     * 첫 쿠폰 발급
      * @param couponId 쿠폰 아이디
      * @param memberId 회원 아이디
      */
     public void issue(Long couponId, Long memberId) {
-        //TODO coupon 찾아서 고려사항 고려 -> 몇번 발급가능?, ...
+        memberCouponRepository.findByCouponIdAndMemberId(couponId, memberId)
+                .ifPresent(mc -> {throw new DuplicateException("이미 발급받은 쿠폰입니다.");});
 
         MemberCoupon memberCoupon = MemberCoupon.builder()
                 .memberId(memberId)
