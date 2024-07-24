@@ -5,6 +5,7 @@ import com.example.orderservice.dto.cart.CartResponseDto;
 import com.example.orderservice.dto.product.ProductDetailResponseDto;
 import com.example.orderservice.entity.ProductCart;
 import com.example.orderservice.feign.ProductServiceClient;
+import com.example.orderservice.repository.MemberCouponRepository;
 import com.example.orderservice.repository.ProductCartRepository;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.Objects;
 public class CartService {
     private final ProductCartRepository productCartRepository;
     private final ProductServiceClient productServiceClient;
+    private final MemberCouponRepository memberCouponRepository;
 
     /**
      * 장바구니에 제품 추가
@@ -58,7 +60,7 @@ public class CartService {
     public List<CartResponseDto> getCart(Long memberId) {
         List<ProductCart> carts = productCartRepository.findByMemberId(memberId);
 
-        return carts.stream()
+        List<CartResponseDto> result = carts.stream()
                 .map(cart -> {
                     try {
                         ProductDetailResponseDto product = productServiceClient.getProduct(cart.getProductId());
@@ -70,6 +72,13 @@ public class CartService {
                 })
                 .filter(Objects::nonNull)
                 .toList();
+
+        result
+                .forEach(response -> response.setAvailableCoupons(
+                        memberCouponRepository.findAvailableCoupons(memberId, response.getProduct().getProductId())
+                ));
+
+        return result;
     }
 
     /**
