@@ -1,9 +1,6 @@
 package com.example.orderservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +19,14 @@ public class MemberCoupon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long memberCouponId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id")
+    private Coupon coupon;
     private Long memberId;
-    private Long couponId;
+
+    public void setCouponId(Long couponId) {
+        this.coupon = Coupon.builder()
+                .couponId(couponId)
+                .build();
+    }
 }

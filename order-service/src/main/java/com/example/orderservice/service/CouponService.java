@@ -1,6 +1,7 @@
 package com.example.orderservice.service;
 
 import com.example.orderservice.dto.coupon.CouponCreateRequest;
+import com.example.orderservice.dto.coupon.CouponResponseDto;
 import com.example.orderservice.dto.file.FileSaveResultDto;
 import com.example.orderservice.entity.Coupon;
 import com.example.orderservice.entity.CouponImage;
@@ -48,6 +49,7 @@ public class CouponService {
                 .name(couponCreateRequest.getName())
                 .description(couponCreateRequest.getDescription())
                 .discount(couponCreateRequest.getDiscount())
+                .isPercent(couponCreateRequest.getIsPercent())
                 .productId(couponCreateRequest.getProductId())
                 .couponImage(couponImage)
                 .build();
@@ -69,15 +71,30 @@ public class CouponService {
      * @param memberId 회원 아이디
      */
     public void issue(Long couponId, Long memberId) {
-        memberCouponRepository.findByCouponIdAndMemberId(couponId, memberId)
+        memberCouponRepository.findByCouponCouponIdAndMemberId(couponId, memberId)
                 .ifPresent(mc -> {throw new DuplicateException("이미 발급받은 쿠폰입니다.");});
 
         MemberCoupon memberCoupon = MemberCoupon.builder()
                 .memberId(memberId)
-                .couponId(couponId)
                 .build();
+        memberCoupon.setCouponId(couponId);
 
         memberCouponRepository.save(memberCoupon);
+    }
+
+    public List<CouponResponseDto> getMemberCoupon(Long memberId) {
+        return memberCouponRepository.findByMemberId(memberId)
+                .stream()
+                .map((mc) -> CouponResponseDto.builder()
+                        .couponId(mc.getMemberCouponId())
+                        .name(mc.getCoupon().getName())
+                        .description(mc.getCoupon().getDescription())
+                        .discount(mc.getCoupon().getDiscount())
+                        .isPercent(mc.getCoupon().getIsPercent())
+                        .couponImageId(mc.getCoupon().getCouponImage().getCouponImageId())
+                        .productId(mc.getCoupon().getProductId())
+                        .build())
+                .toList();
     }
 
     private static byte[] getFileBytes(MultipartFile multipartFile) {

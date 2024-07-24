@@ -1,7 +1,9 @@
 package com.example.orderservice.controller;
 
 import com.example.orderservice.dto.coupon.CouponCreateRequest;
+import com.example.orderservice.dto.coupon.CouponResponseDto;
 import com.example.orderservice.entity.Coupon;
+import com.example.orderservice.entity.MemberCoupon;
 import com.example.orderservice.resolvehandler.AuthenticationPrincipal;
 import com.example.orderservice.resolvehandler.Principal;
 import com.example.orderservice.service.CouponService;
@@ -50,8 +52,9 @@ public class CouponController {
 
     /**
      * 쿠폰 발급
+     *
      * @param principal 발급받는 사용지
-     * @param couponId 쿠폰 아이디
+     * @param couponId  쿠폰 아이디
      * @return 200 ok
      */
     @PostMapping("/members/coupon/{couponId}")
@@ -59,5 +62,18 @@ public class CouponController {
         couponService.issue(couponId, principal.getMemberId());
 
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 사용자 쿠폰 조회
+     *
+     * @param principal 회원
+     * @return 200 ok
+     */
+    @GetMapping("/members/coupon")
+    public ResponseEntity<Map<String, List<CouponResponseDto>>> getMemberCoupon(@AuthenticationPrincipal Principal principal) {
+        List<CouponResponseDto> memberCoupons = couponService.getMemberCoupon(principal.getMemberId());
+
+        return ResponseEntity.ok(Map.of(COUPON_RESPONSE_KEY, memberCoupons));
     }
 }

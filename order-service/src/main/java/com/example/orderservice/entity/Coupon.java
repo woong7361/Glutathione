@@ -27,5 +27,7 @@ public class Coupon {
 
     private String name;
     private String description;
-    private Integer discount; 
+    private Integer discount;
+
+    private Boolean isPercent;
 }
