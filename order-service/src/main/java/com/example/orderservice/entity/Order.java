@@ -6,8 +6,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 
-@Entity
+
+@Entity(name = "orders")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,8 +21,8 @@ public class Order {
 
     private Long memberId;
 
-//    @OneToMany(mappedBy = "order")
-//    private List<OrderProduct> orderProduct;
+    @OneToMany(mappedBy = "order")
+    private List<OrderProduct> orderProduct;
 
     private String senderName;
     private String senderPhoneNumber;
