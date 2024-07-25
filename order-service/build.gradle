@@ -31,8 +31,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// feign client
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
 	// validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
