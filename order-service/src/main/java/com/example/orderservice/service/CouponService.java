@@ -76,6 +76,7 @@ public class CouponService {
 
         MemberCoupon memberCoupon = MemberCoupon.builder()
                 .memberId(memberId)
+                .isUsed(false)
                 .build();
         memberCoupon.setCouponId(couponId);
 
@@ -93,6 +94,7 @@ public class CouponService {
                         .isPercent(mc.getCoupon().getIsPercent())
                         .couponImageId(mc.getCoupon().getCouponImage().getCouponImageId())
                         .productId(mc.getCoupon().getProductId())
+                        .isUsed(mc.getIsUsed())
                         .build())
                 .toList();
     }

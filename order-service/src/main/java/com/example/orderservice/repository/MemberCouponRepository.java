@@ -20,4 +20,9 @@ public interface MemberCouponRepository extends JpaRepository<MemberCoupon, Long
             "JOIN FETCH Coupon c on mc.coupon.couponId = c.couponId " +
             "WHERE mc.memberId = :memberId AND (c.productId = :productId OR c.productId IS NULL)")
     List<MemberCoupon> findAvailableCoupons(Long memberId, Long productId);
+
+    @Query("UPDATE MemberCoupon mc " +
+            "SET mc.isUsed = true " +
+            "WHERE mc.memberCouponId = :memberCouponId")
+    void use(Long memberCouponId);
 }

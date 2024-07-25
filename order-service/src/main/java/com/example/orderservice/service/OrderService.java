@@ -83,6 +83,11 @@ public class OrderService {
                         .build())
                 .forEach(orderProductRepository::save);
 
+        // coupon 사용 처리
+        process.stream()
+                .filter(p -> p.getMemberCoupon() != null)
+                .forEach(p -> memberCouponRepository.use(p.getMemberCoupon().getMemberCouponId()));
+
         // product quantity -
         productServiceClient.order(orderRequestDto.getOrderProducts()
                 .stream().map(dto -> ReduceQuantityRequestDto.builder()
@@ -90,9 +95,6 @@ public class OrderService {
                         .quantity(dto.getQuantity())
                         .build())
                 .toList());
-
-        // TODO coupon 사용 처리
-        // memberCoupon 사용됨 컬럼 필요
 
     }
 }

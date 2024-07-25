@@ -24,6 +24,8 @@ public class MemberCoupon {
     private Coupon coupon;
     private Long memberId;
 
+    private Boolean isUsed;
+
     public void setCouponId(Long couponId) {
         this.coupon = Coupon.builder()
                 .couponId(couponId)

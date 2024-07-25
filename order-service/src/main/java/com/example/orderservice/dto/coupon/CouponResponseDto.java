@@ -15,6 +15,7 @@ public class CouponResponseDto {
     private String name;
     private String description;
     private Integer discount;
+    private Boolean isUsed;
 
     private Boolean isPercent;
 
