@@ -48,8 +48,8 @@ public class OrderController {
     }
 
     @GetMapping("orders/top")
-    public ResponseEntity<TopOrderProducts> getTopOrderProducts() {
-        TopOrderProducts topOrderProducts = orderService.getTopOrderProducts();
+    public ResponseEntity<List<TopOrderProducts>> getTopOrderProducts() {
+        List<TopOrderProducts> topOrderProducts = orderService.getTopOrderProducts();
 
         return ResponseEntity.ok(topOrderProducts);
     }

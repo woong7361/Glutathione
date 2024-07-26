@@ -13,9 +13,9 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByMemberId(Long memberId);
 
-    @Query("SELECT op.productId, count(op.productId) as count " +
+    @Query("SELECT op.productId as productId, count(op.productId) as count " +
             "FROM OrderProduct op " +
             "GROUP BY op.productId " +
             "order by count DESC")
-    TopOrderProducts getTopOrderProducts();
+    List<TopOrderProducts> getTopOrderProducts();
 }

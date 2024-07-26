@@ -127,7 +127,7 @@ public class OrderService {
 
     }
 
-    public TopOrderProducts getTopOrderProducts() {
+    public List<TopOrderProducts> getTopOrderProducts() {
         return orderRepository.getTopOrderProducts();
 
     }
