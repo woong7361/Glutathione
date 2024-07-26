@@ -44,10 +44,15 @@ public class CouponController {
      * @return 쿠폰 리스트
      */
     @GetMapping("/coupon")
-    public ResponseEntity<Map<String, List<Coupon>>> getCoupon() {
-        List<Coupon> coupons = couponService.getCoupon();
+    public ResponseEntity<Map<String, List<Coupon>>> getCoupon(@RequestParam Boolean disabled) {
+        List<Coupon> coupons = couponService.getCoupon(disabled);
 
         return ResponseEntity.ok(Map.of(COUPON_RESPONSE_KEY, coupons));
+    }
+
+    @PostMapping("/coupon/{couponId}/toggle")
+    public void toggleCoupon(@PathVariable Long couponId) {
+        couponService.toggle(couponId);
     }
 
     /**
