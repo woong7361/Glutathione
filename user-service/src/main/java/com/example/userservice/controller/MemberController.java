@@ -23,17 +23,6 @@ import static com.example.userservice.constant.ResponseConstant.DUPLICATE_LOGIN_
 public class MemberController {
     private final MemberService memberService;
 
-    @GetMapping("/test")
-    public String healthCheck() {
-        log.info("health-check");
-
-        if (true) {
-            throw new IllegalArgumentException("msag");
-        }
-
-        return "good";
-    }
-
     /**
      * 회원 가입
      *
@@ -44,7 +33,7 @@ public class MemberController {
     public ResponseEntity<Object> createMember(@RequestBody Member member) {
         memberService.createMember(member);
 
-        return ResponseEntity.status(201)
+        return ResponseEntity.ok()
                 .build();
     }
 
