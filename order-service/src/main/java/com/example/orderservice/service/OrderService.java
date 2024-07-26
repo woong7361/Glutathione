@@ -1,10 +1,7 @@
 package com.example.orderservice.service;
 
 import com.example.orderservice.dto.coupon.CouponResponseDto;
-import com.example.orderservice.dto.order.OrderProcessDto;
-import com.example.orderservice.dto.order.OrderRequestDto;
-import com.example.orderservice.dto.order.OrderResponseDto;
-import com.example.orderservice.dto.order.ReduceQuantityRequestDto;
+import com.example.orderservice.dto.order.*;
 import com.example.orderservice.entity.Order;
 import com.example.orderservice.entity.OrderProduct;
 import com.example.orderservice.error.exception.NotFoundException;
@@ -76,7 +73,7 @@ public class OrderService {
 
         process.stream()
                 .map(p -> OrderProduct.builder()
-                        .ProductId(p.getProductDetail().getProductId())
+                        .productId(p.getProductDetail().getProductId())
                         .memberCoupon(p.getMemberCoupon())
                         .order(order)
                         .quantity(p.getQuantity())
@@ -127,6 +124,11 @@ public class OrderService {
                                 .toList())
                         .build())
                 .toList();
+
+    }
+
+    public TopOrderProducts getTopOrderProducts() {
+        return orderRepository.getTopOrderProducts();
 
     }
 }

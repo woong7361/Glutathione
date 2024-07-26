@@ -2,6 +2,7 @@ package com.example.orderservice.controller;
 
 import com.example.orderservice.dto.order.OrderRequestDto;
 import com.example.orderservice.dto.order.OrderResponseDto;
+import com.example.orderservice.dto.order.TopOrderProducts;
 import com.example.orderservice.resolvehandler.AuthenticationPrincipal;
 import com.example.orderservice.resolvehandler.Principal;
 import com.example.orderservice.service.OrderService;
@@ -44,6 +45,13 @@ public class OrderController {
         List<OrderResponseDto> orders = orderService.getOrders(principal.getMemberId());
 
         return ResponseEntity.ok(Map.of(ORDERS_RESPONSE_KEY, orders));
+    }
+
+    @GetMapping("orders/top")
+    public ResponseEntity<TopOrderProducts> getTopOrderProducts() {
+        TopOrderProducts topOrderProducts = orderService.getTopOrderProducts();
+
+        return ResponseEntity.ok(topOrderProducts);
     }
 }
 
