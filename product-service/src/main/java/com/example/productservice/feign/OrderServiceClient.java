@@ -12,5 +12,5 @@ import java.util.List;
 public interface OrderServiceClient {
 
     @GetMapping("/orders/top")
-    ProductTopOrdersDto getTopOrderProducts();
+    List<ProductTopOrdersDto> getTopOrderProducts();
 }

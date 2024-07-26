@@ -13,15 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class ProductTopOrdersDto {
 
-    private Long memberId;
-    private List<TopProducts> products;
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class TopProducts{
-        private Long productId;
-        private Long count;
-    }
+    private Long productId;
+    private Long count;
 }

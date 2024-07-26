@@ -171,8 +171,8 @@ public class ProductController {
     }
 
     @GetMapping("/products/orders/top")
-    public ResponseEntity getTopOrderProducts() {
-        List<ProductTopResponseDto> topOrderProducts = productService.getTopOrderProducts();
+    public ResponseEntity getTopOrderProducts(@MemberPrincipal Principal principal) {
+        List<ProductTopResponseDto> topOrderProducts = productService.getTopOrderProducts(principal.getMemberId());
 
         return ResponseEntity.ok(Map.of("products", topOrderProducts));
     }

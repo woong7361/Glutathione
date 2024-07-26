@@ -196,15 +196,14 @@ public class ProductService {
 
     }
 
-    public List<ProductTopResponseDto> getTopOrderProducts() {
-        ProductTopOrdersDto topProducts = orderServiceClient.getTopOrderProducts();
-        return topProducts.getProducts()
+    public List<ProductTopResponseDto> getTopOrderProducts(Long memberId) {
+        return orderServiceClient.getTopOrderProducts()
                 .stream().map(t -> {
                     ProductDetailResponseDto result = productRepository.findByIdWithThumbnail(t.getProductId(), THUMBNAIL_)
                             .map(product -> ProductConverter.toProductDetailResponseDto(product))
                             .orElseThrow(() -> new NotFoundException("product not exist", t.getProductId()));
 
-                    ProductFavoriteDto favor = productRepository.findFavoriteCountById(t.getProductId(), topProducts.getMemberId());
+                    ProductFavoriteDto favor = productRepository.findFavoriteCountById(t.getProductId(), memberId);
                     result.setFavorCount(favor.getFavoriteCount());
                     result.setIsFavor(favor.getIsFavor());
 
