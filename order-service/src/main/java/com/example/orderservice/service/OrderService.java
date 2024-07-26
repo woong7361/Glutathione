@@ -129,7 +129,6 @@ public class OrderService {
 
     public List<TopOrderProducts> getTopOrderProducts() {
         return orderRepository.getTopOrderProducts();
-
     }
 }
 

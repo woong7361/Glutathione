@@ -47,7 +47,7 @@ public class OrderController {
         return ResponseEntity.ok(Map.of(ORDERS_RESPONSE_KEY, orders));
     }
 
-    @GetMapping("orders/top")
+    @GetMapping("/orders/top")
     public ResponseEntity<List<TopOrderProducts>> getTopOrderProducts() {
         List<TopOrderProducts> topOrderProducts = orderService.getTopOrderProducts();
 
