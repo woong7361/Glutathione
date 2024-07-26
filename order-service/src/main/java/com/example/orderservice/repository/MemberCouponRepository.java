@@ -19,7 +19,9 @@ public interface MemberCouponRepository extends JpaRepository<MemberCoupon, Long
     @Query("SELECT mc " +
             "FROM MemberCoupon mc " +
             "JOIN FETCH Coupon c on mc.coupon.couponId = c.couponId " +
-            "WHERE mc.memberId = :memberId AND (c.productId = :productId OR c.productId IS NULL)")
+            "WHERE mc.memberId = :memberId " +
+            "   AND (c.productId = :productId OR c.productId IS NULL) " +
+            "   AND mc.isUsed = false")
     List<MemberCoupon> findAvailableCoupons(Long memberId, Long productId);
 
     @Modifying
