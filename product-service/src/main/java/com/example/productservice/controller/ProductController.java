@@ -170,6 +170,13 @@ public class ProductController {
         return productService.getProductByMemberFavorite(principal.getMemberId(), pageRequest);
     }
 
+    @GetMapping("/products/orders/top")
+    public ResponseEntity getTopOrderProducts() {
+        List<ProductTopResponseDto> topOrderProducts = productService.getTopOrderProducts();
+
+        return ResponseEntity.ok(Map.of("products", topOrderProducts));
+    }
+
     @PostMapping("/products/order")
     public ResponseEntity<Object> reduceQuantity(@RequestBody List<ReduceQuantityRequestDto> requestDto) {
         productService.reduceQuantity(requestDto);

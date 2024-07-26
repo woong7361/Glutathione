@@ -9,6 +9,7 @@ import com.example.productservice.dto.product.*;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.error.exception.DuplicateException;
 import com.example.productservice.error.exception.NotFoundException;
+import com.example.productservice.feign.OrderServiceClient;
 import com.example.productservice.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class ProductService {
     private final ProductImageRepository productImageRepository;
     private final ProductStyleRepository productStyleRepository;
     private final ProductInquireRepository productInquireRepository;
+    private final OrderServiceClient orderServiceClient;
 
     /**
      * 제품 생성
@@ -192,5 +194,26 @@ public class ProductService {
         requestDto
                 .forEach(r -> productRepository.reduceQuantity(r.getProductId(), r.getQuantity()));
 
+    }
+
+    public List<ProductTopResponseDto> getTopOrderProducts() {
+        ProductTopOrdersDto topProducts = orderServiceClient.getTopOrderProducts();
+        return topProducts.getProducts()
+                .stream().map(t -> {
+                    ProductDetailResponseDto result = productRepository.findByIdWithThumbnail(t.getProductId(), THUMBNAIL_)
+                            .map(product -> ProductConverter.toProductDetailResponseDto(product))
+                            .orElseThrow(() -> new NotFoundException("product not exist", t.getProductId()));
+
+                    ProductFavoriteDto favor = productRepository.findFavoriteCountById(t.getProductId(), topProducts.getMemberId());
+                    result.setFavorCount(favor.getFavoriteCount());
+                    result.setIsFavor(favor.getIsFavor());
+
+                    return ProductTopResponseDto.builder()
+                            .product(result)
+                            .count(t.getCount())
+                            .build();
+
+                })
+                .toList();
     }
 }
