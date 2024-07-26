@@ -186,4 +186,11 @@ public class ProductService {
                 = productRepository.findProductByMemberFavorite(memberId, pageable);
         return productByMemberFavorites;
     }
+
+    public void reduceQuantity(List<ReduceQuantityRequestDto> requestDto) {
+        // TODO Quantity > 0 엔티티에 설정해야한다.
+        requestDto
+                .forEach(r -> productRepository.reduceQuantity(r.getProductId(), r.getQuantity()));
+
+    }
 }

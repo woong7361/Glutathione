@@ -48,6 +48,7 @@ public class ProductController {
 
     /**
      * 상품 삭제
+     *
      * @param productId 삭제할 상품 식별자
      * @return 200 ok
      */
@@ -60,6 +61,7 @@ public class ProductController {
 
     /**
      * 상품 수정
+     *
      * @param productId 제품 식별자
      * @return 200 ok
      */
@@ -130,6 +132,7 @@ public class ProductController {
 
     /**
      * 제품 좋아요 추가
+     *
      * @param productId 제품 식별자
      * @param principal 사용자
      * @return 200 ok
@@ -143,6 +146,7 @@ public class ProductController {
 
     /**
      * 제품 좋아요 삭제
+     *
      * @param productId 제품 식별자
      * @param principal 사용자
      * @return 200 ok
@@ -164,5 +168,11 @@ public class ProductController {
     public List<FavoriteProductResponseDto> getMemberFavorites(
             @AuthenticationPrincipal Principal principal, @ModelAttribute PageRequest pageRequest) {
         return productService.getProductByMemberFavorite(principal.getMemberId(), pageRequest);
+    }
+
+    @PostMapping("/products/order")
+    public ResponseEntity<Object> reduceQuantity(@RequestBody List<ReduceQuantityRequestDto> requestDto) {
+        productService.reduceQuantity(requestDto);
+        return ResponseEntity.ok().build();
     }
 }

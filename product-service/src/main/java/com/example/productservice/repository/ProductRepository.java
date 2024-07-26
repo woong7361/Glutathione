@@ -6,6 +6,7 @@ import com.example.productservice.dto.product.FavoriteProductResponseDto;
 import com.example.productservice.repository.dsl.QueryDslProductRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -57,4 +58,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>, QueryDs
             "   JOIN FETCH pr.productType ptype " +
             "WHERE pf.memberId = :memberId ")
     List<FavoriteProductResponseDto> findProductByMemberFavorite(Long memberId, Pageable pageable);
+
+    @Modifying()
+    @Query("UPDATE Product p " +
+            "SET p.quantity = p.quantity - :quantity " +
+            "WHERE p.productId = :productId")
+    void reduceQuantity(Long productId, Long quantity);
 }
