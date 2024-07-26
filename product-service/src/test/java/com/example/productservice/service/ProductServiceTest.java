@@ -9,6 +9,7 @@ import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.dummy.DummyFactory;
 import com.example.productservice.error.exception.DuplicateException;
 import com.example.productservice.error.exception.NotFoundException;
+import com.example.productservice.feign.OrderServiceClient;
 import com.example.productservice.repository.*;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -31,10 +32,11 @@ class ProductServiceTest {
     ProductImageRepository productImageRepository = Mockito.mock(ProductImageRepository.class);
     ProductStyleRepository productStyleRepository = Mockito.mock(ProductStyleRepository.class);
     ProductInquireRepository productInquireRepository = Mockito.mock(ProductInquireRepository.class);
+    OrderServiceClient orderServiceClient = Mockito.mock(OrderServiceClient.class);
 
     ProductService productService = new ProductService(
             productRepository, productTypeRepository, productFavoriteRepository, productImageRepository,
-            productStyleRepository, productInquireRepository
+            productStyleRepository, productInquireRepository, orderServiceClient
     );
 
     @Nested
