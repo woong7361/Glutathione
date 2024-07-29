@@ -49,6 +49,7 @@ public class AuthenticationHeaderFilter extends AbstractGatewayFilterFactory<Aut
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
 
+            log.info("required role is {}", config.propertyKey);
             if (! haveAuthorizationHeader(request)) {
                 return onError(exchange, NO_AUTHORIZATION_HEADER, HttpStatus.UNAUTHORIZED);
             }

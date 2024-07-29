@@ -83,6 +83,39 @@ spring:
             - RemoveRequestHeader=Cookie
             - RewritePath=/product-service/(?<segment>.*), /$\{segment}
 
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order-service/coupon, /order-service/coupon/{couponId}
+            - Method=POST, PUT, DELETE
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/order-service/(?<segment>.*), /$\{segment}
+            - name: AuthenticationHeaderFilter
+              args:
+                propertyKey: admin.secret
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order-service/**
+            - Method=POST, PUT, DELETE
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/order-service/(?<segment>.*), /$\{segment}
+            - name: AuthenticationHeaderFilter
+              args:
+                propertyKey: token.secret
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order-service/**
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/order-service/(?<segment>.*), /$\{segment}
+
+
       default-filters:
         - name: GlobalFilter
 
