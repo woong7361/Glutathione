@@ -29,6 +29,12 @@ public class Member {
     @Column(nullable = false)
     private String memberName;
 
+    private String phoneNumber;
+    private String email;
+    private String postNumber;
+    private String address;
+    private String addressDetail;
+
     @ColumnDefault("false")
     @Column(nullable = false)
     private Boolean isDelete;
@@ -54,6 +60,11 @@ public class Member {
     public void update(Member updateMember) {
         this.password = updateMember.getPassword();
         this.memberName = updateMember.getMemberName();
+        this.phoneNumber = updateMember.getPhoneNumber();
+        this.email = updateMember.getEmail();
+        this.postNumber = updateMember.getPostNumber();
+        this.address = updateMember.getAddress();
+        this.addressDetail = updateMember.getAddressDetail();
     }
 
     public void delete() {
