@@ -1,8 +1,7 @@
 package com.example.orderservice.service;
 
-import com.example.orderservice.dto.order.OrderProcessDto;
-import com.example.orderservice.dto.order.OrderRequestDto;
-import com.example.orderservice.dto.order.ReduceQuantityRequestDto;
+import com.example.orderservice.dto.coupon.CouponResponseDto;
+import com.example.orderservice.dto.order.*;
 import com.example.orderservice.entity.Order;
 import com.example.orderservice.entity.OrderProduct;
 import com.example.orderservice.error.exception.NotFoundException;
@@ -10,13 +9,11 @@ import com.example.orderservice.feign.ProductServiceClient;
 import com.example.orderservice.repository.MemberCouponRepository;
 import com.example.orderservice.repository.OrderProductRepository;
 import com.example.orderservice.repository.OrderRepository;
-import com.example.orderservice.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -76,7 +73,7 @@ public class OrderService {
 
         process.stream()
                 .map(p -> OrderProduct.builder()
-                        .ProductId(p.getProductDetail().getProductId())
+                        .productId(p.getProductDetail().getProductId())
                         .memberCoupon(p.getMemberCoupon())
                         .order(order)
                         .quantity(p.getQuantity())
@@ -96,6 +93,42 @@ public class OrderService {
                         .build())
                 .toList());
 
+    }
+
+    public List<OrderResponseDto> getOrders(Long memberId) {
+        List<Order> orders = orderRepository.findByMemberId(memberId);
+        return orders
+                .stream().map(order -> OrderResponseDto.builder()
+                        .senderName(order.getSenderName())
+                        .senderEmail(order.getSenderEmail())
+                        .senderPhoneNumber(order.getSenderPhoneNumber())
+                        .receiverName(order.getReceiverName())
+                        .receiverPhoneNumber(order.getReceiverPhoneNumber())
+                        .address(order.getAddress())
+                        .addressDetail(order.getAddressDetail())
+                        .orderProducts(order.getOrderProduct().stream().map(
+                                        p -> OrderResponseDto.OrderProductsDto.builder()
+                                                .quantity(p.getQuantity())
+                                                .productDetailResponseDto(productServiceClient.getProduct(p.getProductId()))
+                                                .couponResponseDto(p.getMemberCoupon() == null ? null : CouponResponseDto.builder()
+                                                        .name(p.getMemberCoupon().getCoupon().getName())
+                                                        .description(p.getMemberCoupon().getCoupon().getDescription())
+                                                        .couponId(p.getMemberCoupon().getMemberCouponId())
+                                                        .couponImageId(p.getMemberCoupon().getCoupon().getCouponImage().getCouponImageId())
+                                                        .isUsed(p.getMemberCoupon().getIsUsed())
+                                                        .discount(p.getMemberCoupon().getCoupon().getDiscount())
+                                                        .productId(p.getProductId())
+                                                        .isPercent(p.getMemberCoupon().getCoupon().getIsPercent())
+                                                        .build())
+                                                .build())
+                                .toList())
+                        .build())
+                .toList();
+
+    }
+
+    public List<TopOrderProducts> getTopOrderProducts() {
+        return orderRepository.getTopOrderProducts();
     }
 }
 

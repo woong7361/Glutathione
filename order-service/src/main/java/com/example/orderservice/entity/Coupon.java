@@ -30,4 +30,9 @@ public class Coupon {
     private Integer discount;
 
     private Boolean isPercent;
+    private Boolean disabled;
+
+    public void toggle() {
+        this.disabled = !this.disabled;
+    }
 }

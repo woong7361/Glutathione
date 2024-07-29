@@ -7,6 +7,7 @@ import com.example.orderservice.entity.Coupon;
 import com.example.orderservice.entity.CouponImage;
 import com.example.orderservice.entity.MemberCoupon;
 import com.example.orderservice.error.exception.DuplicateException;
+import com.example.orderservice.error.exception.NotFoundException;
 import com.example.orderservice.repository.CouponRepository;
 import com.example.orderservice.repository.FileStorage;
 import com.example.orderservice.repository.MemberCouponRepository;
@@ -52,6 +53,7 @@ public class CouponService {
                 .isPercent(couponCreateRequest.getIsPercent())
                 .productId(couponCreateRequest.getProductId())
                 .couponImage(couponImage)
+                .disabled(false)
                 .build();
 
         couponRepository.save(coupon);
@@ -61,8 +63,8 @@ public class CouponService {
      * 전체 쿠폰 조회
      * @return 쿠폰 리스트
      */
-    public List<Coupon> getCoupon() {
-        return couponRepository.findAll();
+    public List<Coupon> getCoupon(Boolean disabled) {
+        return couponRepository.findAllWith(disabled);
     }
 
     /**
@@ -97,6 +99,13 @@ public class CouponService {
                         .isUsed(mc.getIsUsed())
                         .build())
                 .toList();
+    }
+
+    public void toggle(Long couponId) {
+        Coupon coupon = couponRepository.findById(couponId)
+                .orElseThrow(() -> new NotFoundException("해당하는 쿠폰이 없습니다.", couponId));
+
+        coupon.toggle();
     }
 
     private static byte[] getFileBytes(MultipartFile multipartFile) {

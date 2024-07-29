@@ -24,7 +24,7 @@ public class OrderProduct {
     @JoinColumn(name = "member_coupon_id")
     private MemberCoupon memberCoupon;
 
-    private Long ProductId;
+    private Long productId;
 
     private Long quantity;
 }
