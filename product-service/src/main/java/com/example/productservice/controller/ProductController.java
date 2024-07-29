@@ -3,10 +3,8 @@ package com.example.productservice.controller;
 
 import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductType;
-import com.example.productservice.dto.product.ProductCreateRequestDto;
-import com.example.productservice.dto.product.ProductDetailResponseDto;
-import com.example.productservice.dto.product.ProductSearchRequestDto;
-import com.example.productservice.dto.product.ProductSearchResponseDto;
+import com.example.productservice.dto.common.PageRequest;
+import com.example.productservice.dto.product.*;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.resolvehandler.AuthenticationPrincipal;
 import com.example.productservice.resolvehandler.MemberPrincipal;
@@ -49,14 +47,42 @@ public class ProductController {
     }
 
     /**
+     * 상품 삭제
+     *
+     * @param productId 삭제할 상품 식별자
+     * @return 200 ok
+     */
+    @DeleteMapping("/products/{productId}")
+    public ResponseEntity<Object> deleteProduct(@PathVariable Long productId) {
+        productService.deleteProduct(productId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 상품 수정
+     *
+     * @param productId 제품 식별자
+     * @return 200 ok
+     */
+    @PutMapping("/products/{productId}")
+    public ResponseEntity<Object> updateProduct(
+            @Valid @RequestBody ProductUpdateRequestDto updateRequestDto,
+            @PathVariable Long productId) {
+        productService.updateProduct(updateRequestDto, productId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    /**
      * 제품 상세조회
      *
      * @param productId 제품 식별자
      * @return 200 ok
      */
     @GetMapping("/products/{productId}")
-    public ResponseEntity<ProductDetailResponseDto> getProductDetail(@PathVariable Long productId) {
-        ProductDetailResponseDto responseDto = productService.getProductDetail(productId);
+    public ResponseEntity<ProductDetailResponseDto> getProductDetail(@PathVariable Long productId, @MemberPrincipal Principal principal) {
+        ProductDetailResponseDto responseDto = productService.getProductDetail(productId, principal.getMemberId());
 
         return ResponseEntity.ok(responseDto);
     }
@@ -106,6 +132,7 @@ public class ProductController {
 
     /**
      * 제품 좋아요 추가
+     *
      * @param productId 제품 식별자
      * @param principal 사용자
      * @return 200 ok
@@ -119,6 +146,7 @@ public class ProductController {
 
     /**
      * 제품 좋아요 삭제
+     *
      * @param productId 제품 식별자
      * @param principal 사용자
      * @return 200 ok
@@ -127,6 +155,31 @@ public class ProductController {
     public ResponseEntity<Object> deleteFavorite(@PathVariable Long productId, @AuthenticationPrincipal Principal principal) {
         productService.deleteFavorProduct(productId, principal.getMemberId());
 
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 회원이 좋아요 표시한 제품 보여주기
+     *
+     * @param principal 인증된 회원 객체
+     * @return 상품 리스트
+     */
+    @GetMapping("/members/products/favorites")
+    public List<FavoriteProductResponseDto> getMemberFavorites(
+            @AuthenticationPrincipal Principal principal, @ModelAttribute PageRequest pageRequest) {
+        return productService.getProductByMemberFavorite(principal.getMemberId(), pageRequest);
+    }
+
+    @GetMapping("/products/orders/top")
+    public ResponseEntity getTopOrderProducts(@MemberPrincipal Principal principal) {
+        List<ProductTopResponseDto> topOrderProducts = productService.getTopOrderProducts(principal.getMemberId());
+
+        return ResponseEntity.ok(Map.of("products", topOrderProducts));
+    }
+
+    @PostMapping("/products/order")
+    public ResponseEntity<Object> reduceQuantity(@RequestBody List<ReduceQuantityRequestDto> requestDto) {
+        productService.reduceQuantity(requestDto);
         return ResponseEntity.ok().build();
     }
 }

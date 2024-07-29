@@ -8,6 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * 제품 스타일 서비스 로직
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional

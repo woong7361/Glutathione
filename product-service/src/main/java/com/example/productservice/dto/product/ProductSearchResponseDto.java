@@ -32,6 +32,8 @@ public class ProductSearchResponseDto {
     private Long favorCount;
     private Boolean isFavor;
 
+    private Long inquireCount;
+
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -51,5 +53,9 @@ public class ProductSearchResponseDto {
         this.productStyles = productStyles.stream()
                 .map(ProductStyle::getStyle)
                 .toList();
+    }
+
+    public void setInquireCount(Long inquireCount) {
+        this.inquireCount = inquireCount;
     }
 }

@@ -25,6 +25,9 @@ public class InquireListResponseDto {
 
         private Long memberId;
         @Setter
+        private String memberName;
+
+        @Setter
         private Long productId;
 
         private LocalDateTime createdAt;

@@ -2,6 +2,7 @@ package com.example.productservice.repository.dsl;
 
 import com.example.productservice.Entity.*;
 import com.example.productservice.converter.ProductConverter;
+import com.example.productservice.dto.inquire.InquireCountDto;
 import com.example.productservice.dto.product.ProductFavoriteDto;
 import com.example.productservice.dto.product.ProductSearchRequestDto;
 import com.example.productservice.dto.product.ProductSearchResponseDto;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import static com.example.productservice.Entity.QProduct.product;
 import static com.example.productservice.Entity.QProductFavorite.productFavorite;
 import static com.example.productservice.Entity.QProductImage.productImage;
+import static com.example.productservice.Entity.QProductInquire.productInquire;
 import static com.example.productservice.Entity.QProductStyle.productStyle;
 import static com.querydsl.core.types.ExpressionUtils.count;
 
@@ -67,6 +69,21 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
                 .where(product.productId.in(ids))
                 .fetch();
 
+        List<InquireCountDto> inquireCountList = queryFactory
+                .select(Projections.fields(InquireCountDto.class,
+                        product.productId,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(count(productInquire.productInquireId))
+                                        .from(productInquire)
+                                        .where(productInquire.product.productId.eq(product.productId)),
+                                "inquireCount")
+                ))
+                .from(product)
+                .distinct()
+                .where(product.productId.in(ids))
+                .fetch();
+
+
         List<Product> productsWithThumbnail = queryFactory
                 .selectFrom(product)
                 .leftJoin(product.productImages, productImage).fetchJoin()
@@ -81,6 +98,8 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
 
         Map<Long, ProductFavoriteDto> favoriteMap = favoriteList.stream()
                 .collect(Collectors.toMap(fl -> fl.getProductId(), fl -> fl));
+        Map<Long, InquireCountDto> inquireMap = inquireCountList.stream()
+                .collect(Collectors.toMap(inq -> inq.getProductId(), inq -> inq));
         Map<Long, Product> thumbnailMap = productsWithThumbnail.stream()
                 .collect(Collectors.toMap(pr -> pr.getProductId(), pr -> pr));
 
@@ -88,6 +107,7 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
             res.setThumbnail(thumbnailMap.get(res.getProductId()).getProductImages().get(0));
             res.setFavorCount(favoriteMap.get(res.getProductId()).getFavoriteCount());
             res.setIsFavor(favoriteMap.get(res.getProductId()).getIsFavor());
+            res.setInquireCount(inquireMap.get(res.getProductId()).getInquireCount());
         });
 
         return result;

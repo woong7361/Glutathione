@@ -4,7 +4,9 @@ import com.example.productservice.Entity.ProductInquire;
 import com.example.productservice.Entity.ProductInquireAnswer;
 import com.example.productservice.converter.InquireConverter;
 import com.example.productservice.dto.inquire.InquireListResponseDto;
+import com.example.productservice.dto.member.MemberDto;
 import com.example.productservice.error.exception.NotFoundException;
+import com.example.productservice.feign.MemberServiceClient;
 import com.example.productservice.repository.ProductInquireAnswerRepository;
 import com.example.productservice.repository.ProductInquireRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import java.util.List;
 public class InquireService {
     private final ProductInquireRepository productInquireRepository;
     private final ProductInquireAnswerRepository productInquireAnswerRepository;
+    private final MemberServiceClient memberServiceClient;
 
     /**
      * 제품 문의 작성
@@ -88,6 +91,12 @@ public class InquireService {
 
                     return inquireResponse;
                 }).toList();
+
+        responseList.forEach(inq -> {
+            //TODO 쿼리가 많이 나간다.
+            MemberDto memberDto = memberServiceClient.getMember(inq.getMemberId());
+            inq.setMemberName(memberDto.getMemberName());
+        });
 
         return InquireListResponseDto.builder()
                 .inquires(responseList)

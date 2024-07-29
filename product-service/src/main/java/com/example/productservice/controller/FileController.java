@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
 
 /**
- * 파일 관련 컨트롤러
+ * 파일 관련 엔드포인트
  */
 @RestController
 @RequiredArgsConstructor
@@ -39,7 +39,7 @@ public class FileController {
      */
     @GetMapping("/products/images/{imageId}")
     public ResponseEntity<byte[]> getFile(@PathVariable Long imageId) {
-        byte[] fileStream = fileService.getFileStream(imageId);
+        byte[] fileStream = fileService.getProductFileStream(imageId);
         return ResponseEntity
                 .ok()
                 .contentLength(fileStream.length)
@@ -55,6 +55,21 @@ public class FileController {
         fileService.deleteImage(imageId);
 
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 배너 이미지 조회
+     * @param imageId 이미지 식별자
+     * @return 이미지 byte stream
+     */
+    @GetMapping("/banners/images/{imageId}")
+    public ResponseEntity<byte[]> getBannerImage(@PathVariable Long imageId) {
+        byte[] fileStream = fileService.getBannerFileStream(imageId);
+        return ResponseEntity
+                .ok()
+                .contentLength(fileStream.length)
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(fileStream);
     }
 
 }
