@@ -26,13 +26,13 @@ public class PostInitializer {
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void init() {
-        Admin admin = Admin.builder()
-                .adminName("ADMIN")
-                .loginId("admin")
-                .password("1234")
-                .build();
-
-        admin.encodePassword(passwordEncoder);
-        adminRepository.save(admin);
+//        Admin admin = Admin.builder()
+//                .adminName("ADMIN")
+//                .loginId("admin")
+//                .password("1234")
+//                .build();
+//
+//        admin.encodePassword(passwordEncoder);
+//        adminRepository.save(admin);
     }
 }
