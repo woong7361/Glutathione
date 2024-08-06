@@ -9,6 +9,7 @@ import java.util.List;
  * Product 동적 쿼리 repository
  */
 public interface QueryDslProductRepository {
+
     /**
      * 제품 검색
      *
@@ -17,4 +18,12 @@ public interface QueryDslProductRepository {
      * @return 검색된 제품
      */
     List<ProductSearchResponseDto> search(ProductSearchRequestDto searchRequestDto, Long memberId);
+
+    /**
+     * 제품 총 개수 반환
+     * @param searchRequestDto 제품 검색 요청 파라미터
+     * @return 검색된 제품 개수
+     */
+    Long searchCount(ProductSearchRequestDto searchRequestDto);
+
 }

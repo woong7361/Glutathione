@@ -29,6 +29,7 @@ public class ProductController {
     public static final String PRODUCT_ID_RESPONSE_KEY = "productId";
     public static final String PRODUCT_TYPES_RESPONSE_KEY = "types";
     public static final String CONTENTS_RESPONSE_KEY = "contents";
+    public static final String COUNT_RESPONSE_KEY = "totalCount";
 
     private final ProductService productService;
 
@@ -128,6 +129,20 @@ public class ProductController {
         List<ProductSearchResponseDto> result = productService.search(searchRequestDto, principal.getMemberId());
 
         return ResponseEntity.ok(Map.of(CONTENTS_RESPONSE_KEY, result));
+    }
+
+    /**
+     * 제품 검색 개수 반환
+     *
+     * @param searchRequestDto 제품 검색 요청
+     * @return 200 ok & 검색 결과
+     */
+    @GetMapping("/products/search/count")
+    public ResponseEntity<Map<String, Long>> productSearchCount(
+            @ModelAttribute ProductSearchRequestDto searchRequestDto) {
+        Long count = productService.searchCount(searchRequestDto);
+
+        return ResponseEntity.ok(Map.of(COUNT_RESPONSE_KEY, count));
     }
 
     /**

@@ -3,10 +3,7 @@ package com.example.productservice.dto.product;
 import com.example.productservice.Entity.ProductImage;
 import com.example.productservice.Entity.ProductStyle;
 import com.example.productservice.Entity.ProductType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;

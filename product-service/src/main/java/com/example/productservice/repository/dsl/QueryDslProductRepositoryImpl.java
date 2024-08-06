@@ -30,6 +30,14 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
 
     private final JPAQueryFactory queryFactory;
 
+    public Long searchCount(ProductSearchRequestDto searchRequestDto) {
+        return queryFactory
+                .select(product.count())
+                .from(product)
+                .where(searchCondition(searchRequestDto))
+                .fetchFirst();
+    }
+
 
     @Override
     public List<ProductSearchResponseDto> search(ProductSearchRequestDto searchRequestDto, Long memberId) {
