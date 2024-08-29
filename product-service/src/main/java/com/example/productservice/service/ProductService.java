@@ -215,4 +215,8 @@ public class ProductService {
                 })
                 .toList();
     }
+
+    public Long searchCount(ProductSearchRequestDto searchRequestDto) {
+        return productRepository.searchCount(searchRequestDto);
+    }
 }
