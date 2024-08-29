@@ -64,6 +64,7 @@ public class MemberService {
                 .orElseThrow(() -> new NotFoundException(NOT_EXIST_MEMBER_ERROR_MESSAGE, memberId));
 
         findMember.update(updateMember);
+        findMember.encodePassword(passwordEncoder);
     }
 
     /**
@@ -88,5 +89,25 @@ public class MemberService {
 
         ModelMapper mapper = ModelMapperFactory.create();
         return mapper.map(member, MemberResponseDto.class);
+    }
+
+    /**
+     * 비밀번호 재설정
+     * @param loginId 로그인 아이디
+     * @param password 재설정할 패스워드
+     */
+    public void resetPassword(String loginId, String password) {
+        Member member = memberRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new NotFoundException(NOT_EXIST_MEMBER_ERROR_MESSAGE, -1L));
+
+        member.resetPassword(password);
+        member.encodePassword(passwordEncoder);
+    }
+
+    public String getLoginIdByEmail(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(NOT_EXIST_MEMBER_ERROR_MESSAGE, -1L));
+
+        return member.getLoginId();
     }
 }

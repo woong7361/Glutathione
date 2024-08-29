@@ -67,6 +67,10 @@ public class Member {
         this.addressDetail = updateMember.getAddressDetail();
     }
 
+    public void resetPassword(String password) {
+        this.password = password;
+    }
+
     public void delete() {
         this.isDelete = true;
     }

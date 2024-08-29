@@ -21,6 +21,7 @@ import static com.example.userservice.constant.ResponseConstant.DUPLICATE_LOGIN_
 @Slf4j
 @RequiredArgsConstructor
 public class MemberController {
+    public static final String LOGIN_ID_RESPONSE_KEY = "loginId";
     private final MemberService memberService;
 
     /**
@@ -53,8 +54,9 @@ public class MemberController {
 
     /**
      * 회원 정보 업데이트
+     *
      * @param memberId 회원 식별자
-     * @param member 회원 정보 수정 요청 파라미터
+     * @param member   회원 정보 수정 요청 파라미터
      * @return 200 ok
      */
     @PutMapping("/members/{memberId}")
@@ -69,6 +71,7 @@ public class MemberController {
 
     /**
      * 회원 탈퇴
+     *
      * @param memberId 회원 식별자
      * @return 200 OK
      */
@@ -82,10 +85,11 @@ public class MemberController {
 
     /**
      * 로그인 아이디 중복 확인
+     *
      * @param loginId target login Id
      * @return 중복 결과 json
      */
-    @GetMapping("/members/loginId")
+    @GetMapping("/members/loginId/duplicate")
     public ResponseEntity<Map<String, Boolean>> checkDuplicateLoginId(@RequestParam String loginId) {
         Boolean result = memberService.isDuplicateLoginId(loginId);
 
@@ -93,4 +97,20 @@ public class MemberController {
                 .ok()
                 .body(Map.of(DUPLICATE_LOGIN_ID_RESPONSE_KEY, result));
     }
+
+
+    @GetMapping("/members/loginId")
+    public ResponseEntity<Map<String, String>> getLoginId(@RequestParam String email) {
+        String loginId = memberService.getLoginIdByEmail(email);
+
+        return ResponseEntity.ok(Map.of(LOGIN_ID_RESPONSE_KEY, loginId));
+    }
+
+    @PatchMapping("/members/password")
+    public ResponseEntity<Object> resetPassword(@RequestBody Member member) {
+        memberService.resetPassword(member.getLoginId(), member.getPassword());
+
+        return ResponseEntity.ok().build();
+    }
+
 }

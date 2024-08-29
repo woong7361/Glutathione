@@ -48,7 +48,9 @@ public class SecurityConfig {
                                 .requestMatchers(new AntPathRequestMatcher("/members")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/members/{memberId}","GET")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/login")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/members/loginId/duplicate")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/members/loginId")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/members/password")).permitAll()
 
                                 .requestMatchers(new AntPathRequestMatcher("/error")).permitAll()
                                 .requestMatchers("/test").permitAll()
