@@ -4,6 +4,7 @@ package com.example.productservice.controller;
 import com.example.productservice.Entity.Product;
 import com.example.productservice.Entity.ProductType;
 import com.example.productservice.dto.common.PageRequest;
+import com.example.productservice.dto.order.OrderRequestDto;
 import com.example.productservice.dto.product.*;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.resolvehandler.AuthenticationPrincipal;
@@ -197,4 +198,19 @@ public class ProductController {
         productService.reduceQuantity(requestDto);
         return ResponseEntity.ok().build();
     }
+
+    /**
+     * 주문
+     * @param principal 주문하는 사용자
+     * @param orderRequestDto 주문 요청 정보
+     * @return
+     */
+    @PostMapping("/orders")
+    public ResponseEntity<Object> order(@AuthenticationPrincipal Principal principal, @RequestBody OrderRequestDto orderRequestDto) {
+        orderRequestDto.setMemberId(principal.getMemberId());
+
+        productService.order(orderRequestDto);
+        return ResponseEntity.ok().build();
+    }
+
 }

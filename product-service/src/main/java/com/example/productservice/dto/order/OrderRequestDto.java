@@ -1,8 +1,9 @@
-package com.example.orderservice.dto.order;
+package com.example.productservice.dto.order;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class OrderRequestDto {
 
     private List<OrderProductDto> orderProducts;
 
+    @Setter
     private Long memberId;
 
     @Data

@@ -47,6 +47,9 @@ dependencies {
 	implementation 'io.github.openfeign:feign-micrometer'
 	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
 
+	//	kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2:2.2.220'
 	runtimeOnly 'com.mysql:mysql-connector-j'

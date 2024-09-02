@@ -47,6 +47,9 @@ dependencies {
 	implementation 'io.github.openfeign:feign-micrometer'
 	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
 
+	//	kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
 	//modelmapper
 	implementation 'org.modelmapper:modelmapper:3.2.0'
 

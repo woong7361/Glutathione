@@ -90,4 +90,9 @@ public class Product {
         unitPrice = updateRequestDto.getUnitPrice();
         quantity = updateRequestDto.getQuantity();
     }
+
+
+    public void addQuantity(Long quantity) {
+        this.quantity = (int) (this.quantity + quantity);
+    }
 }

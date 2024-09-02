@@ -5,19 +5,23 @@ import com.example.productservice.Entity.ProductFavorite;
 import com.example.productservice.Entity.ProductType;
 import com.example.productservice.converter.ProductConverter;
 import com.example.productservice.dto.common.PageRequest;
+import com.example.productservice.dto.order.OrderRequestDto;
 import com.example.productservice.dto.product.*;
 import com.example.productservice.dto.type.ProductTypeCreateRequestDto;
 import com.example.productservice.error.exception.DuplicateException;
 import com.example.productservice.error.exception.NotFoundException;
 import com.example.productservice.feign.OrderServiceClient;
+import com.example.productservice.messageque.KafkaProducer;
 import com.example.productservice.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +36,7 @@ public class ProductService {
     private final ProductStyleRepository productStyleRepository;
     private final ProductInquireRepository productInquireRepository;
     private final OrderServiceClient orderServiceClient;
+    private final KafkaProducer kafkaProducer;
 
     /**
      * 제품 생성
@@ -218,5 +223,13 @@ public class ProductService {
 
     public Long searchCount(ProductSearchRequestDto searchRequestDto) {
         return productRepository.searchCount(searchRequestDto);
+    }
+
+    public void order(OrderRequestDto orderRequestDto) {
+        reduceQuantity(orderRequestDto.getOrderProducts().stream()
+                .map((product) -> new ReduceQuantityRequestDto(product.getProductId(), product.getQuantity()))
+                .collect(Collectors.toList()));
+
+        kafkaProducer.send("order-request", orderRequestDto);
     }
 }
