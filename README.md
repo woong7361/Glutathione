@@ -23,9 +23,8 @@
 # 시스템 아키텍쳐
 ![쇼핑몰_아키텍처 drawio (3)](https://github.com/user-attachments/assets/0681f364-a5db-4c0b-bcee-06b00f40fba4)
 
-
-**(TODO 대표 사진 추가 필요!)**
 # 마이크로 서비스 별 주요 기능
+![image](https://github.com/user-attachments/assets/1dd64919-e587-40f0-a049-ab2fef12faf7)
 
 ## **Spring Cloud Eureka 서버 및 Gateway 구축**
 - 서비스 디스커버리 및 API Gateway에서 인증, 라우팅 역할 수행
@@ -79,7 +78,7 @@
   - github hook을 사용하여 branch가 push될때 가동 되도록 구축
   - 각 서비스별 파이프라인을 따로 구축하여 서비스별로 CI/CD가 가능하게끔 구성
     
-- **TODO jenkins CI/CD branch별로 따로 작성된것 스크린샷 추가**
+  ![image](https://github.com/user-attachments/assets/649dcfaf-a29b-40d1-9175-94cbff5a6db5)
 
 **[[**jenkins 살펴보기!!**]](http://3.36.58.192:8080/)**
 - 계정 정보
@@ -90,7 +89,7 @@
 ### MSA로 인해 분산된 로그 때문에 에러나 상황파확이 어려워져 통합적인 로그관리의 필요성이 높아졌습니다. 따라서 traceId를 활용해 로그 트레이싱 환경을 구축하였습니다.
 - Micrometer Tracing(traceId 제공)과 ELK를 활용하여 분산 로그 트레이싱 환경 구축
 
-- **TODO ELK 스크린샷 추가**
+  ![image](https://github.com/user-attachments/assets/cf7f1548-c592-4909-9384-480650b271eb)
 - **[**elastic 살펴보기!!**](http://211.218.223.120:5601/app/discover#)**
 
 
@@ -131,20 +130,52 @@
 
 ## MSA 환경으로 인해 발생하는 Cost 최소화
 ### 현재 개발 PC1, 서버 PC1, EC2 free tier 2 => 개발PC를 제외한 서버 2대가 존재하는데 로컬 서버PC의 메모리 사용량이 90%가 넘어서 죽는 문제 발생
+- 시도해본 내용
 1. sacle out
-  - 가장 간단하게 해결이 가능하지만 비용이 없는 free tier를 무한정 만들수는 없기에 1대만 추가하였다.
+    - 가장 간단하게 해결이 가능하지만 비용이 없는 free tier를 무한정 만들수는 없기에 1대만 추가하였다.
 2. 운영체제 최적화
-  - ubuntu desktop -> ubuntu server
+    - ubuntu desktop -> ubuntu server
 3. docker 메모리제한
 4. jvm heap 제한
-5. 경량화 SQL -> SQL Lite
 
-**TODO 자세한 사항은 펼쳐보기**
-
-- 현재상황 
+<details>
+  <summary>*<b>자세한 사항은 펼쳐보기</b>*</summary>
+  
+### 문제 상황
+  - local Server에서 4GB 메모리와 2GB 스왑메모리가 모두 사용중인 상태
+  - 11개의 docker가 떠있지만 추가적으로 더 떠야하는 상태
 ![image](https://github.com/user-attachments/assets/fae8338a-32fb-4ee8-9e66-ce94619b1c3b)
+![image](https://github.com/user-attachments/assets/d0e26b4a-c917-4669-80c8-6597920f8189)
 
-* 의사결정 사항
+### 해결방법
+0. **swap 메모리 추가**
+   - 기본적으로 서비스당 Ram에 필수적으로 떠있어야하는 메모리가 있기에 swap메모리를 2GB -> 4GB로 올렸지만 변치않음
+1. **Scale out**
+   - 서버가 먹통이된 상황이라 급하게 메모리수급을 위하여 새로운 EC2 freetier를 추가
+   - 30%의 메모리 확보
+  ![image](https://github.com/user-attachments/assets/d66e2a0a-8bae-4c51-b338-a7022f8de45a)
+2. **운영체제 최적화**
+  - ubuntu desktop을 ubuntu server로 전환(불필요한 부분인 GUI 제거)
+  - 일반 메모리는 이전과 비슷하지만 swap메모리의 용량이 늘어남
+  ![image](https://github.com/user-attachments/assets/6b1013b5-2b28-4a6a-b209-6c4dab3dac7e)
+3. **docker 메모리제한**
+  - 요청이 많이들어오지 않는다 가정하고 각 docker의 메모리를 제한하여 compact하게 사용하기로 해보았다.
+  - ex. mysql 메모리를 200mb로 제한 -> swap메모리 자동으로 400mb 사용(2배)
+  - 메모리 사용량 8% 감소, swap 메모리 사용량 16% 증가 -> 총 메모리사용량이 같으므로 무의미하다.
+  - mysql의 권장사용 메모리량을 만족하지 못하여 실행하지 않는것으로 결정하였다.
+  ![image](https://github.com/user-attachments/assets/ddbf9d0d-464d-4eca-ac0a-be04acd9863b)
+4. **service jvm heap 제한**
+  - java기반의 서비스의 jvm의 heap을 제한하여 메모리를 확보하려고 시도해보았다.
+  - 아래와같이 512 -> 256으로 jvm heap을 제한하여봤지만 큰 영향은 없었다.
+  ![image](https://github.com/user-attachments/assets/392cd360-0c6a-4d0f-9581-d22f26032829)
+
+**결론**
+- 현재 서비스들을 사용하기 위한 기본적인 메모리가 없기에 다른 방법들을 사용해도 힘든것같다.
+- 결국 scale out을 하건 서비스들을 경량화하는 방향으로 가야할듯 하다. (ex. logstash -> fileBeats, Mysql -> SQL Lite) 
+
+</details>
+
+# 의사결정 사항
 
 |  요구사항  |  선택지  |  설명  |
 | ---- | ---- | ---- |
