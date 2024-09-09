@@ -101,7 +101,23 @@
 - Message Que(Kafka)를 활용한 이벤트 기반 비동기 통신으로 서비스간 결합도를 낮춤
   - 다른 서비스의 트랜잭션 실패를 대기할 일이 없으므로 빠른 처리 가능 
 
-**TODO 자세한 사항은 펼쳐보기**
+<details>
+  <summary>*<b>자세한 사항은 펼쳐보기</b>*</summary>
+  
+### 문제 상황
+- 현재 order-service에서 결재를 요청받으면 결재처리를 진행후 product-service로 이동하여 product 수량을 감소시켜주어야한다. 이때 **product수량이 감소한 후 order-service에서 에러가 발생한다면** product-service에서 rollback은 어떻게 진행되어야 할까?
+  ![실패시](https://github.com/user-attachments/assets/a10688f7-25b4-4cbc-84cb-14e6cdfb060b)
+
+- 이 문제를 해결하기 위해 SAGA Pattern을 적용하기로 하였다.
+  - SAGA Pattern: 마이크로 서비스에서 **데이터 일관성**을 관리하는 방법입니다. 각 서비스는 로컬 트랜잭션을 가지고 있으며, 해당 서비스 데이터를 업데이트하며 메시지 또는 이벤트를 발행해서, 다음 단계 트랜잭션을 호출하게 됩니다. 만약, 해당 프로세스가 실패하게 되면 데이터 정합성을 맞추기 위해 이전 트랜잭션에 대해 **보상 트랜잭션**을 실행합니다.
+  - SAGA Pattern은 2가지로 **Orchestration based** 방식과 **Choreography** 방식이 있는데 현재 서비스 구성상 **Choreography** 방식을 채택하기로 하였다. 
+  - (**Orchestration-Based Saga** 패턴은 모든 관리를 Manager가 호출하기 때문에 분산트랜잭션의 중앙 집중화가 이루어져 구현및 테스트가 쉽지만 트랜잭션 관리 서비스가 하나더 추가되기에 cost가 부족한 현재 서비스에는 적합하지 않다고 생각되었다.)
+  - (**Choreography** 방식은 서비스끼리 직접적으로 통신하지 않고, 이벤트 Pub/Sub을 활용해서 통신하는 방식으로 프로세스를 진행하면서 장애가 나면 보상 트랜잭션 이벤트를 발행한다. 추가 서비스 구현이 필요하지 않아 간단하지만, 테스트나 디버깅이 어려운 단점이 있다.)
+  ![보상시](https://github.com/user-attachments/assets/3f4c26fb-6a6c-45ef-9589-e6b0c5aa56bb)
+
+- TODO 코드 & 실행 결과 작성 필요
+
+</details>
 
 ## 선착순 쿠폰 발급시 동시성 제어및 시스템 부하 관리
 ### 100명에게 선착순 쿠폰을 발행한다고 할때 100명이 넘는 인원들에게 발행이 되는 문제가 발생
