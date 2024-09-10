@@ -105,17 +105,102 @@
   <summary>*<b>자세한 사항은 펼쳐보기</b>*</summary>
   
 ### 문제 상황
-- 현재 order-service에서 결재를 요청받으면 결재처리를 진행후 product-service로 이동하여 product 수량을 감소시켜주어야한다. 이때 **product수량이 감소한 후 order-service에서 에러가 발생한다면** product-service에서 rollback은 어떻게 진행되어야 할까?
-  ![실패시](https://github.com/user-attachments/assets/a10688f7-25b4-4cbc-84cb-14e6cdfb060b)
+- 현재 order-service에서 결재를 요청받으면 결재처리를 진행후 product-service로 이동하여 product 수량을 감소시켜주어야한다. 이때 **product-service에서 에러**가 발생한다면 order-service에서 **rollback**은 어떻게 진행되어야 할까?
+  ![원본](https://github.com/user-attachments/assets/49060813-6a13-4f49-bd1c-6e940a3029ad)
+  
 
-- 이 문제를 해결하기 위해 SAGA Pattern을 적용하기로 하였다.
+### 해결 방안
+- 이 문제를 해결하기 위해 **SAGA Pattern**을 적용하기로 하였다.
   - SAGA Pattern: 마이크로 서비스에서 **데이터 일관성**을 관리하는 방법입니다. 각 서비스는 로컬 트랜잭션을 가지고 있으며, 해당 서비스 데이터를 업데이트하며 메시지 또는 이벤트를 발행해서, 다음 단계 트랜잭션을 호출하게 됩니다. 만약, 해당 프로세스가 실패하게 되면 데이터 정합성을 맞추기 위해 이전 트랜잭션에 대해 **보상 트랜잭션**을 실행합니다.
   - SAGA Pattern은 2가지로 **Orchestration based** 방식과 **Choreography** 방식이 있는데 현재 서비스 구성상 **Choreography** 방식을 채택하기로 하였다. 
-  - (**Orchestration-Based Saga** 패턴은 모든 관리를 Manager가 호출하기 때문에 분산트랜잭션의 중앙 집중화가 이루어져 구현및 테스트가 쉽지만 트랜잭션 관리 서비스가 하나더 추가되기에 cost가 부족한 현재 서비스에는 적합하지 않다고 생각되었다.)
-  - (**Choreography** 방식은 서비스끼리 직접적으로 통신하지 않고, 이벤트 Pub/Sub을 활용해서 통신하는 방식으로 프로세스를 진행하면서 장애가 나면 보상 트랜잭션 이벤트를 발행한다. 추가 서비스 구현이 필요하지 않아 간단하지만, 테스트나 디버깅이 어려운 단점이 있다.)
-  ![보상시](https://github.com/user-attachments/assets/3f4c26fb-6a6c-45ef-9589-e6b0c5aa56bb)
+    - (**Orchestration-Based Saga** 패턴은 모든 관리를 Manager가 호출하기 때문에 분산트랜잭션의 중앙 집중화가 이루어져 구현및 테스트가 쉽지만 트랜잭션 관리 서비스가 하나더 추가되기에 cost가 부족한 현재 서비스에는 적합하지 않다고 생각되었다.)
+    - (**Choreography** 방식은 서비스끼리 직접적으로 통신하지 않고, 이벤트 Pub/Sub을 활용해서 통신하는 방식으로 프로세스를 진행하면서 장애가 나면 보상 트랜잭션 이벤트를 발행한다. 추가 서비스 구현이 필요하지 않아 간단하지만, 테스트나 디버깅이 어려운 단점이 있다.)
+   
+  - 정상 처리시
+  ![정상처리](https://github.com/user-attachments/assets/e903de29-5573-42ed-828f-40c3c721de00)
+  - 에러 발생시
+  ![에러발생시](https://github.com/user-attachments/assets/bdd3a1b3-813c-417c-b03e-a4f410489d98)
+  - 에러 발생시 kafka를 통해 롤백을 요청하는 이벤트를 발행하여 보상트랜잭션을 구현할 수 있다. 
 
-- TODO 코드 & 실행 결과 작성 필요
+### 적용 코드 
+PS. 적용 코드부분에서는 client -> order-service -> product-service 대신 **client -> product-service -> order-service** 순으로 순서를 바꾸었다.
+
+- product-service에서 상품수량을 줄이고 kafka에 주문 event를 발송한다.
+```
+// ProductService.Java
+public void order(OrderRequestDto orderRequestDto) {
+    reduceQuantity(orderRequestDto.getOrderProducts().stream()
+            .map((product) -> new ReduceQuantityRequestDto(product.getProductId(), product.getQuantity()))
+            .collect(Collectors.toList()));
+
+    kafkaProducer.send("order-request", orderRequestDto);
+}
+```
+
+- order-service에서 발송된 이벤트를 받아 처리한다. 만일 **에러가 발생하면** rollback 이벤트를 발행하여 보상트랜잭션을 준비한다.
+```
+// KafkaConsumer.java
+@KafkaListener(topics = "order-request", groupId = "consumerGroupId")
+public void updateQty(String kafkaMessage) {
+    log.info("kafka Message: {}", kafkaMessage);
+
+    try {
+        ObjectMapper objectMapper = new ObjectMapper();
+        OrderRequestDto orderRequestDto = objectMapper.readValue(kafkaMessage, OrderRequestDto.class);
+        orderService.order(orderRequestDto, orderRequestDto.getMemberId());
+    } catch (Exception e) {
+        log.error("order error -> rollback required: {}", e.getMessage());
+        kafkaProducer.send("order-rollback", kafkaMessage);
+    }
+}
+```
+
+- product-service에서 rollback 이벤트를 받아 보상트랜잭션을 수행한다.
+```
+@KafkaListener(topics = "order-rollback", groupId = "consumerGroupId")
+public void updateQty(String kafkaMessage) {
+    log.info("kafka Message: {}", kafkaMessage);
+
+    try {
+        ObjectMapper objectMapper = new ObjectMapper();
+        OrderRequestDto orderRequestDto = objectMapper.readValue(kafkaMessage, OrderRequestDto.class);
+        orderRequestDto.getOrderProducts().stream()
+                .forEach(p -> {
+                    productRepository.findById(p.getProductId())
+                            .ifPresent(product -> product.addQuantity(p.getQuantity()));
+                });
+
+    } catch (Exception e) {
+        log.error("order rollback 실패 관리자 문의 필요: message: {}", kafkaMessage);
+    }
+}
+```
+
+### 결과
+-- 
+- order-service에서 일부러 에러를 던지는 코드로 수정하였다.
+```
+// KafkaConsumer.java
+@KafkaListener(topics = "order-request", groupId = "consumerGroupId")
+public void updateQty(String kafkaMessage) {
+    log.info("kafka Message: {}", kafkaMessage);
+
+    try {
+        ObjectMapper objectMapper = new ObjectMapper();
+        OrderRequestDto orderRequestDto = objectMapper.readValue(kafkaMessage, OrderRequestDto.class);
+        orderService.order(orderRequestDto, orderRequestDto.getMemberId());
+        throw new RuntimeException("rollback");
+    } catch (Exception e) {
+        log.error("order error -> rollback required: {}", e.getMessage());
+        kafkaProducer.send("order-rollback", kafkaMessage);
+    }
+}
+```
+
+- 그결과 order-service에서 rollback-event를 발행하였고 
+![image](https://github.com/user-attachments/assets/d7641c26-af46-4822-abd2-7f2a8bdaaca7)
+- product-service에서 product수량을 rollback하는 과정이 수행되었다.
+![image](https://github.com/user-attachments/assets/09ecc288-12c3-40fb-ad85-90b53f588782)
 
 </details>
 
