@@ -227,7 +227,84 @@ public void updateQty(String kafkaMessage) {
 - 검색된 컬럼에 쓰여있는 경로로 이동하여 이미지 파일을 삭제한다.
   - crontab이 돌아가는 서버와 이미지가 저장되는 서버가 다르기에 ssh를 사용하여 원격으로 삭제한다.
 
-**TODO 자세한 사항은 살펴보기**
+<details>
+  <summary>*<b>자세한 사항은 펼쳐보기</b>*</summary>
+
+### 문제상황
+- ex. 제품을 삭제하는 도중 rollback이 된다면 이미 삭제된 이미지는 rollback이 안되잖아???
+- 상품 혹은 배너와같은 이미지가 포함된 컬럼을 삭제할때 이미지파일은 DB 트랜잭션에 포함이 되지 않는 문제 발생
+
+### 해결방법
+- 따라서 이 프로젝트에서는 제품 이미지에 삭제됨 컬럼을 추가하였고, 실제 이미지는 즉시 삭제가아닌 추후삭제로 결정하였습니다.
+```
+// ProductImage.Java
+
+@Entity
+@DynamicInsert
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+public class ProductImage {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long productImageId;
+
+    ...
+
+    @ColumnDefault(value = "false")
+    private boolean isDelete;
+
+    ...
+
+}
+```
+- 추후삭제에 대한 고민은 일정기간이 지난 후(복구 가능 기간) 자동으로 DB를 검색해 일정기간이 지나고, isDelete=true인 이미지를 실제파일에서 삭제하려고 하였습니다.
+- 스케줄링 도구에대해서는 spring scheduler와 linux crontab을 고민하였는데 현재 메모리 부족과 이미지들이 분산되어 저장되어있는 서비스 구조상 spring scehduler 를 사용하려면 새로운 스케줄러 서비스를 만들거나, 임의의 서비스에 어색한 코드들이 들어갈 수 있어 간편한 linux crontab을 사용하기로 결정하였습니다.
+
+- **해결 순서**
+1. 원격으로 mysql에 접속하여 각 데이터베이스의 삭제할 이미지파일의 경로를 불러오고 DB에서 삭제한다.
+2. 삭제할 이미지파일의 경로로 원격으로 접속하여 이미지를 삭제한다.
+3. crontab을 통해 일정기간마다 scheduling 설정을 해준다.
+
+### 적용 코드
+- DB에서 이미지파일의 경로 검색및 삭제
+```
+// product-image.sql - 제품 이미지 sql 예시
+
+SELECT CONCAT(path, physical_name) FROM product_image WHERE isDelete ='true' AND modified_at < DATE_ADD(NOW(), INTERVAL -1 MONTH);
+DELETE FROM product_image WHERE isDelete ='true' AND modified_at < DATE_ADD(NOW(), INTERVAL -1 MONTH);
+```
+
+- 원격으로 DB접근 후 ssh통신을 통해 파일 삭제
+```
+# delete-images.sh 
+
+PWD=<비밀번호>
+SERVER=(서버들...)
+PORTS=(포트들...)
+SQLS=(sql들...)
+KEY_FILE=(EC2 key file들...)
+
+for ((cnt=0 ; cnt < 2 ; cnt++));
+do
+mysql -u root -p${PWD} mydb -h ${SERVER[$cnt]} -P ${PORTS[$cnt]} < ${SQLS[$cnt]} | grep / | xargs ssh -i ${KEY_FILE} ubuntu@${SERVER[$cnt]} sudo rm
+done
+```
+
+- 위의 프로세스를 crontab에 등록
+```
+# 매주 월요일 오전 1시에 test.sh 를 실행
+0 1 * * 1 /home/script/test.sh
+```
+
+### 결과
+- 위의 과정을 따로 실행시 결과 (**명령어를 rm 대신 echo로 실행**)
+![image](https://github.com/user-attachments/assets/a95f293e-2868-4631-b177-99e8cbac08c0)
+
+</details>
+
+
 
 ## MSA 환경으로 인해 발생하는 Cost 최소화
 ### 현재 개발 PC1, 서버 PC1, EC2 free tier 2 => 개발PC를 제외한 서버 2대가 존재하는데 로컬 서버PC의 메모리 사용량이 90%가 넘어서 죽는 문제 발생
