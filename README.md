@@ -2,13 +2,14 @@
 글루따띠온은 MSA 구조를 이용한 B2C 형태의 쇼핑몰 사이트이며 원하는 제품을 검색하고 담아 구매할 수있는 사이트입니다.
 
 # 프로젝트 결과물
+**[[Client Page]](http://210.114.19.32:8090/)**
+- 계정 (id & password)
+  - admin | 1234
+
 **[[Admin Page]](http://210.114.19.32:8085/)**
 - 계정 (id & password)
   - tester | tester
 
-**[[Client Page]](http://210.114.19.32:8090/)**
-- 계정 (id & password)
-  - admin | 1234
 # 개발 환경
 
 - 개발 운영체제 - Linux Ubuntu
