@@ -206,7 +206,7 @@ public void updateQty(String kafkaMessage) {
 </details>
 
 ## 선착순 쿠폰 발급시 동시성 제어및 시스템 부하 관리
-### 100명에게 선착순 쿠폰을 발행한다고 할때 100명이 넘는 인원들에게 발행이 되는 문제가 발생
+### 쿠폰발급시 정해진 쿠폰 수량보다 더 많은 쿠폰이 발급되는 동시성 문제가 발생
 1. DB Lock을 통한 해결 (비관적 Lock)
    - 스크린샷
    - 성능 & 분산환경에서 불가능
@@ -217,8 +217,109 @@ public void updateQty(String kafkaMessage) {
 - message que인 kafka를 통해 데이터 흐름의 양을 제어
 - kafka는 DB에 비해 sacle out도 쉽게 가능
 
-**TODO 자세한 사항은 살펴보기**
+<details>
+  <summary>*<b>자세한 사항은 펼쳐보기</b>*</summary>
 
+### 문제상황1
+- 쿠폰발급시 정해진 쿠폰 수량보다 더 많은 쿠폰이 발급되는 동시성 문제가 발생
+- ex. 100명에게 선착순 쿠폰을 발행한다고 할때 100명이 넘는 인원들에게 발행이 되는 문제가 발생
+
+- 문제가 발생한 코드
+```
+// CouponService.java
+
+public void issueLimitedCoupon(Long couponId, Long memberId) {
+    Coupon coupon = couponRepository.findById(couponId)
+            .orElseThrow(() -> new NotFoundException("coupon Not Found", couponId));
+    long issuedCouponCount = MemberCouponRepository.countByCouponId(couponId)
+
+    if (coupon.getQuantity() < issuedCouponCount) {
+        throw new CouponException("쿠폰 수량 부족");
+    }
+
+    MemberCoupon memberCoupon = MemberCoupon.builder()
+            .memberId(memberId)
+            .isUsed(false)
+            .build();
+    memberCoupon.setCouponId(couponId);
+
+    memberCouponRepository.save(memberCoupon);
+}
+```
+- 동시에 DB에 쓰기작업이 완료되지않고 동시에 조회작업이 들어와 문제가 발생한다.
+- TODO 시간과 실패 결과 & 테스트 코드
+
+### 해결방법 
+1. **Lock으로 해결해보기(DB Lock)**
+- 가장먼저 간단한 방법인 DB Lock을 적용하여 시험해보았다.
+- 비관적 Lock을 사용하여 구현하였다.
+```
+    public void issueLimitedCoupon(Long couponId, Long memberId) {
+
+        // @Lock(LockModeType.PESSIMISTIC_WRITE)를 추가해 조회문을 SelectForUpdate로 바꿔 비관적 Lock을 구현한다. 
+        Coupon coupon = couponRepository.findByCouponIdForUpdate(couponId)
+                .orElseThrow(() -> new CouponException("coupon Not Found", couponId));
+        coupon.decreaseQuantity();  // 쿠폰 수량을 줄이고, 줄일 수 없다면 에러를 낸다.
+
+        MemberCoupon memberCoupon = MemberCoupon.builder()
+                .memberId(memberId)
+                .isUsed(false)
+                .build();
+        memberCoupon.setCouponId(couponId);
+
+        memberCouponRepository.save(memberCoupon);
+    }
+```
+- TODO 성공 결과와 시간
+- DB Lock으로 인해 처리 시간이 **xx%** 증가 & 비관적 Lock은 **분산 환경에서 불가능**한 단점
+
+2. **Redis를 중간에 도입하여 해결**
+- Redis가 Redis 명령어를 single thread로 처리하는 방식을 이용
+- 단순히 쿠폰의 개수만 세는 역할
+  - 복잡한 분산 Lock 사용X
+  - Redis의 원자적 연산인 increment를 사용하여 문제 해결
+```
+public void issueLimitedCoupon(Long couponId, Long memberId) {
+
+    // redis의 increment연산 활용
+    Long issuedCouponCount = countRepository.incrementCouponCount();
+    Coupon coupon = couponRepository.findById(couponId)
+            .orElseThrow(() -> new NotFoundException("coupon Not Found", couponId));
+    if (coupon.getQuantity() < issuedCouponCount) {
+        throw new CouponException("쿠폰 수량 부족");
+    }
+
+    MemberCoupon memberCoupon = MemberCoupon.builder()
+            .memberId(memberId)
+            .isUsed(false)
+            .build();
+    memberCoupon.setCouponId(couponId);
+
+    memberCouponRepository.save(memberCoupon);
+}
+```
+- TODO 성공 결과와 시간
+- network를 타는 시간이 있지만 DB Lock보다 적다는것을 알았다. -> batch를 이용해서 성능향상도 가능할듯? 하다.
+
+### 문제상황2
+- 단기간의 급격한 트래픽 상승으로인해 **DB부하**
+- TODO DB CPU 사용율
+
+### 해결방법
+- kafka를 사용한 처리량 조절
+  - ex. 선착순 쿠폰 1000개를 발급일때
+  - 비용이 높은 쓰기 작업을 DB에 바로 접근 대신 Message Queue에 저장 후 처리
+```
+...
+
+// memberCouponRepository.save(memberCoupon);
+
+// DB에 바로 접근하는 대신 kafka에 이벤트 발급 -> consumer에서 소비
+kafkaProducer.send("issue_coupon", memberCoupon);
+```
+- TODO DB 사용률 & 처리시간 => 옵션에 따라 변경되는것 보여주기
+
+</details>
 
 ## DB와 이미지 파일 동기화문제 해결
 ### 상품 혹은 배너와같은 이미지가 포함된 컬럼을 삭제할때 이미지파일은 DB 트랜잭션에 포함이 되지 않는 문제 발생
