@@ -1,4 +1,4 @@
-# 서비스 소개
+![image](https://github.com/user-attachments/assets/e8b5bfcd-b54c-4a65-8382-cbf24b44cea9)# 서비스 소개
 글루따띠온은 MSA 구조를 이용한 B2C 형태의 쇼핑몰 사이트이며 원하는 제품을 검색하고 담아 구매할 수있는 사이트입니다.
 
 # 프로젝트 결과물
@@ -247,7 +247,9 @@ public void issueLimitedCoupon(Long couponId, Long memberId) {
 }
 ```
 - 동시에 DB에 쓰기작업이 완료되지않고 동시에 조회작업이 들어와 문제가 발생한다.
-- TODO 시간과 실패 결과 & 테스트 코드
+- 결과: **100개 초과**의 쿠폰 발급 & 평균 **2.9초**의 처리속도
+- ![image](https://github.com/user-attachments/assets/24de5e9c-1ec5-4520-bf42-c1249371f527)
+- ![image](https://github.com/user-attachments/assets/78825834-01d0-4652-8d2d-adcfb56a2169)
 
 ### 해결방법 
 1. **Lock으로 해결해보기(DB Lock)**
@@ -270,8 +272,11 @@ public void issueLimitedCoupon(Long couponId, Long memberId) {
         memberCouponRepository.save(memberCoupon);
     }
 ```
-- TODO 성공 결과와 시간
-- DB Lock으로 인해 처리 시간이 **xx%** 증가 & 비관적 Lock은 **분산 환경에서 불가능**한 단점
+
+- 결과: **100개**의 쿠폰 발급 & 평균 **3.4초**의 처리속도
+- DB Lock으로 인해 **처리 시간이 약 17% 증가** & 비관적 Lock은 **분산 환경에서 불가능**한 단점
+  ![image](https://github.com/user-attachments/assets/1a7920ab-5181-4649-beca-831bdf9b620a)
+  
 
 2. **Redis를 중간에 도입하여 해결**
 - Redis가 Redis 명령어를 single thread로 처리하는 방식을 이용
@@ -298,12 +303,19 @@ public void issueLimitedCoupon(Long couponId, Long memberId) {
     memberCouponRepository.save(memberCoupon);
 }
 ```
-- TODO 성공 결과와 시간
-- network를 타는 시간이 있지만 DB Lock보다 적다는것을 알았다. -> batch를 이용해서 성능향상도 가능할듯? 하다.
+- 결과: **100개**의 쿠폰 발급 & 평균 **3.6초**의 처리속도
+- 추가 네트워크 비용으로 인해 **처리 시간이 약 25% 증가**  
+- ![image](https://github.com/user-attachments/assets/5e1c3abc-3248-4029-aa85-096a057d44e3)
+
+### 결론
+- erdis를 사용하는 방법이 8%정도의 시간이 더 걸리지만 MSA이므로 분산환경에 대한 적응도도 중요하고 나중에 복잡해지면 Lock에 대한 비용이 더 커질 수 있어 Redis를 사용하기로 결정하였다. 
 
 ### 문제상황2
 - 단기간의 급격한 트래픽 상승으로인해 **DB부하**
-- TODO DB CPU 사용율
+- (TEST용 DB를 만들어서 사용하였다.)
+- 결과: 최고 **CPU 사용율 88.61%**
+![image](https://github.com/user-attachments/assets/ffae844e-546d-47b5-8dad-8720099aed64)
+
 
 ### 해결방법
 - kafka를 사용한 처리량 조절
@@ -317,7 +329,8 @@ public void issueLimitedCoupon(Long couponId, Long memberId) {
 // DB에 바로 접근하는 대신 kafka에 이벤트 발급 -> consumer에서 소비
 kafkaProducer.send("issue_coupon", memberCoupon);
 ```
-- TODO DB 사용률 & 처리시간 => 옵션에 따라 변경되는것 보여주기
+- 결과: 최고 **CPU 사용율 52.42%**
+- ![image](https://github.com/user-attachments/assets/c65d852f-1f5d-46b4-b52d-bbe267499cce)
 
 </details>
 
