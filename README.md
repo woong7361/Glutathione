@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/e8b5bfcd-b54c-4a65-8382-cbf24b44cea9)# 서비스 소개
+# 서비스 소개
 글루따띠온은 MSA 구조를 이용한 B2C 형태의 쇼핑몰 사이트이며 원하는 제품을 검색하고 담아 구매할 수있는 사이트입니다.
 
 # 프로젝트 결과물
@@ -16,9 +16,8 @@
 - 기반 프레임워크 - Java Spring Boot
 - MSA 프레임워크 - Spring cloud, gateway, eureka, config, feign client
 - 기타 프레임워크 - JPA, QueryDsl, Spring Secuirty, ...
-- 데이터베이스 - Mysql
-- 로그관리 - ELK (Elastic Search & Logstash & Kibana)
-- CI/CD - Jenkins & Github Webhook
+- 데이터베이스 - Mysql, Redis
+- 기타 - ELK, Jenkins, Kafka
 - 서버 - 자체서버 1대 & AWS EC2 3대  
 
 # 시스템 아키텍쳐
@@ -35,7 +34,7 @@
 - Spring Cloud Config를 통해 모든 서비스의 설정 정보를 중앙 저장소(Git 등)에서 관리함으로써 일관성을 유지하고, 설정 변경 이력을 체계적으로 추적할 수 있습니다. 이를 통해 설정 정보의 관리와 배포가 간편해지며, 설정 변경 시 서비스 재배포 없이도 적용할 수 있습니다.
 
 ## **회원의 정보를 처리하는 서비스(user-service)**
-### 사용자 기능 (spring security $ JWT token)
+### 사용자 기능 (spring security & JWT token)
 - 회원가입&로그인
 - 아이디 비밀번호 찾기
 - 회원 정보 관리
@@ -178,7 +177,6 @@ public void updateQty(String kafkaMessage) {
 ```
 
 ### 결과
--- 
 - order-service에서 일부러 에러를 던지는 코드로 수정하였다.
 ```
 // KafkaConsumer.java
@@ -308,11 +306,11 @@ public void issueLimitedCoupon(Long couponId, Long memberId) {
 - ![image](https://github.com/user-attachments/assets/5e1c3abc-3248-4029-aa85-096a057d44e3)
 
 ### 결론
-- erdis를 사용하는 방법이 8%정도의 시간이 더 걸리지만 MSA이므로 분산환경에 대한 적응도도 중요하고 나중에 복잡해지면 Lock에 대한 비용이 더 커질 수 있어 Redis를 사용하기로 결정하였다. 
+- Redis를 사용하는 방법이 8%정도의 시간이 더 걸리지만, 추후 분산환경으로 변경을 고려하여 Redis를 선택하였다. 
 
 ### 문제상황2
 - 단기간의 급격한 트래픽 상승으로인해 **DB부하**
-- (TEST용 DB를 만들어서 사용하였다.)
+  - (TEST용 DB를 만들어서 사용하였다.)
 - 결과: 최고 **CPU 사용율 88.61%**
 ![image](https://github.com/user-attachments/assets/ffae844e-546d-47b5-8dad-8720099aed64)
 
