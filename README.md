@@ -22,7 +22,8 @@
 - 배포 서버 - desktop 1대(ubuntu server) + AWS EC2 3대  
 
 # 시스템 아키텍쳐
-![쇼핑몰_아키텍처 drawio (3)](https://github.com/user-attachments/assets/0681f364-a5db-4c0b-bcee-06b00f40fba4)
+![쇼핑몰_아키텍처 (1)](https://github.com/user-attachments/assets/48aa8b80-e53c-4873-956a-df06df761742)
+
 
 # 마이크로 서비스 별 주요 기능
 ![image](https://github.com/user-attachments/assets/1dd64919-e587-40f0-a049-ab2fef12faf7)
