@@ -13,12 +13,13 @@
 # 개발 환경
 
 - 개발 운영체제 - Linux Ubuntu
-- 기반 프레임워크 - Java Spring Boot
+- 기반 언어 - JAVA(17)
+- 기반 프레임워크 - Java Spring Boot(3.3.1)
 - MSA 프레임워크 - Spring cloud, gateway, eureka, config, feign client
 - 기타 프레임워크 - JPA, QueryDsl, Spring Secuirty, ...
-- 데이터베이스 - Mysql, Redis
+- 데이터베이스 - MySql, Redis
 - 기타 - ELK, Jenkins, Kafka
-- 서버 - 자체서버 1대 & AWS EC2 3대  
+- 배포 서버 - desktop 1대(ubuntu server) + AWS EC2 3대  
 
 # 시스템 아키텍쳐
 ![쇼핑몰_아키텍처 drawio (3)](https://github.com/user-attachments/assets/0681f364-a5db-4c0b-bcee-06b00f40fba4)
@@ -26,10 +27,16 @@
 # 마이크로 서비스 별 주요 기능
 ![image](https://github.com/user-attachments/assets/1dd64919-e587-40f0-a049-ab2fef12faf7)
 
-## **Spring Cloud Eureka 서버 및 Gateway 구축**
-- 서비스 디스커버리 및 API Gateway에서 인증, 라우팅 역할 수행
-  - API Gateway에서 발급한 JWT를 인증하는 과정을 거쳐 인증된 사용자만이 접근할 수 있도록 하고있으며, 회원, 비회원, 관리자가 접근할 수 있는 API를 제한하여 라우팅을 진행하고 있습니다.
-
+## **Spring Cloud Eureka 서버 구축**
+- 서비스 레지스트리및 서비스 디스커버리 역할 수행 
+  - 마이크로서비스를 관리, 운영을 위한 기반 서비스의 주소와 유동적인 IP를 매핑하여 저장
+  - 클라이언트가 여러 개의 마이크로서비스를 호출하기 위해 최적 경로를 찾아주는 라우팅 기능, 적절한 부하 분산을 위한 로드 밸런싱 기능을 제공한다.
+ 
+## **Spring Cloud Gateway 서버 구축**
+- API 라우팅 역할 수행
+- 인증 및 인가 역할 수행
+  - 발급한 JWT를 인증하는 과정을 거쳐 회원, 비회원, 관리자가 접근할 수 있는 API를 제한하는 인증 및 인가 역할을 수행한다.
+ 
 ## **Spring Cloud Config 서버 구축**
 - Spring Cloud Config를 통해 모든 서비스의 설정 정보를 중앙 저장소(Git 등)에서 관리함으로써 일관성을 유지하고, 설정 변경 이력을 체계적으로 추적할 수 있습니다. 이를 통해 설정 정보의 관리와 배포가 간편해지며, 설정 변경 시 서비스 재배포 없이도 적용할 수 있습니다.
 
@@ -49,6 +56,7 @@
 - 각 상품에 대한 문의 답변 작성
 ### 상품 조회
 - 상품 검색(상품명, 내용, 타입, 스타일)
+- 가장 인기있는 제품 스타일별 5개씩 (인기순)
 - 상품 상세조회
 - 상품 찜 확인&취소
 - 상품 문의 작성
@@ -95,7 +103,8 @@
 
 # 서비스 주요 특징 & 트러블 슈팅
 ## 분산 트랜잭션 관리
-### order-service에서 결재시 product-service의 product 수량을 감소 시켜주어야하는 상황에서 에러 발생시 트랜잭션 롤백 처리가 안되는 문제 발생
+### 결재 서비스와 상품서비스간의 협력시 트랜잭션 처리의 문제가 발생
+- order-service에서 결재시 product-service의 product 수량을 감소 시켜주어야하는 상황에서 에러 발생시 트랜잭션 롤백 처리가 안되는 문제 발생
 - 결재 및 상품 수정(상품 수량 감소)에서 SAGA Choreography 패턴 적용
 - 로컬 트랜잭션에서 에러 발생시 보상 트랜잭션을 통해 데이터 일관성 유지
 - Message Que(Kafka)를 활용한 이벤트 기반 비동기 통신으로 서비스간 결합도를 낮춤
