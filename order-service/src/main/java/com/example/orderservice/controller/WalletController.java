@@ -1,5 +1,6 @@
 package com.example.orderservice.controller;
 
+import com.example.orderservice.dto.order.PaymentConfirmRequest;
 import com.example.orderservice.dto.wallet.ChargeRequestDto;
 import com.example.orderservice.resolvehandler.AuthenticationPrincipal;
 import com.example.orderservice.resolvehandler.Principal;
@@ -26,13 +27,13 @@ public class WalletController {
     /**
      * 지갑 충전
      * @param principal 회원 객체
-     * @param requestDto 충전 요청 dto
+     * @param paymentConfirmRequest 충전 확인 요청
      * @return 200 ok
      */
     @PostMapping("/wallet")
     public ResponseEntity<Object> chargeWallet(
-            @AuthenticationPrincipal Principal principal, @Valid @RequestBody ChargeRequestDto requestDto) {
-        walletService.charge(requestDto.getAmount(), principal.getMemberId());
+            @AuthenticationPrincipal Principal principal, @Valid @RequestBody PaymentConfirmRequest paymentConfirmRequest) {
+        walletService.charge(paymentConfirmRequest, principal.getMemberId());
 
         return ResponseEntity.ok().build();
     }

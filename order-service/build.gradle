@@ -21,6 +21,9 @@ configurations {
 
 repositories {
 	mavenCentral()
+
+	// port one api maven setting
+	maven { url 'https://jitpack.io' }
 }
 
 ext {
@@ -52,6 +55,9 @@ dependencies {
 
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// port one 결재 API
+	implementation 'com.github.iamport:iamport-rest-client-java:0.2.23'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2:2.2.220'

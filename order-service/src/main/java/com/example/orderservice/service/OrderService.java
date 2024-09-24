@@ -4,11 +4,13 @@ import com.example.orderservice.dto.coupon.CouponResponseDto;
 import com.example.orderservice.dto.order.*;
 import com.example.orderservice.entity.Order;
 import com.example.orderservice.entity.OrderProduct;
+import com.example.orderservice.entity.Wallet;
 import com.example.orderservice.error.exception.NotFoundException;
 import com.example.orderservice.feign.ProductServiceClient;
 import com.example.orderservice.repository.MemberCouponRepository;
 import com.example.orderservice.repository.OrderProductRepository;
 import com.example.orderservice.repository.OrderRepository;
+import com.example.orderservice.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ public class OrderService {
     private final ProductServiceClient productServiceClient;
     private final MemberCouponRepository memberCouponRepository;
     private final WalletService walletService;
+    private final WalletRepository walletRepository;
 
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
@@ -56,7 +59,10 @@ public class OrderService {
         }
 
         // wallet amount -
-        walletService.charge(-payment, memberId);
+        Wallet wallet = walletRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new NotFoundException("잔액 부족", memberId));
+
+        wallet.charge(-payment);
 
         // order & order product save
         Order order = Order.builder()

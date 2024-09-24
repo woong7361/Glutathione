@@ -2,6 +2,7 @@ package com.example.orderservice.controller;
 
 import com.example.orderservice.dto.order.OrderRequestDto;
 import com.example.orderservice.dto.order.OrderResponseDto;
+import com.example.orderservice.dto.order.PaymentConfirmRequest;
 import com.example.orderservice.dto.order.TopOrderProducts;
 import com.example.orderservice.resolvehandler.AuthenticationPrincipal;
 import com.example.orderservice.resolvehandler.Principal;
@@ -40,6 +41,11 @@ public class OrderController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * 자신이 한 주문들 조회
+     * @param principal 인증된 회원
+     * @return 주문한 영수증들
+     */
     @GetMapping("/members/orders")
     public ResponseEntity<Map<String, List<OrderResponseDto>>> getOrders(@AuthenticationPrincipal Principal principal) {
         List<OrderResponseDto> orders = orderService.getOrders(principal.getMemberId());
@@ -47,6 +53,9 @@ public class OrderController {
         return ResponseEntity.ok(Map.of(ORDERS_RESPONSE_KEY, orders));
     }
 
+    /**
+     * 가장 주문을 많이 한사람을 반환
+     */
     @GetMapping("/orders/top")
     public ResponseEntity<List<TopOrderProducts>> getTopOrderProducts() {
         List<TopOrderProducts> topOrderProducts = orderService.getTopOrderProducts();
