@@ -29,4 +29,15 @@ public interface MemberCouponRepository extends JpaRepository<MemberCoupon, Long
             "SET mc.isUsed = true " +
             "WHERE mc.memberCouponId = :memberCouponId")
     void use(Long memberCouponId);
+
+    @Query("SELECT COUNT(*) " +
+            "FROM MemberCoupon mc " +
+            "WHERE mc.coupon.couponId = :couponId")
+    Long countByCouponId(Long couponId);
+
+    @Query(value = "select get_lock(:key, 3000)", nativeQuery = true)
+    void getLock(String key);
+
+    @Query(value = "select release_lock(:key)", nativeQuery = true)
+    void releaseLock(String key);
 }

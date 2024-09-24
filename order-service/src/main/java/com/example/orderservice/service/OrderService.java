@@ -84,15 +84,6 @@ public class OrderService {
         process.stream()
                 .filter(p -> p.getMemberCoupon() != null)
                 .forEach(p -> memberCouponRepository.use(p.getMemberCoupon().getMemberCouponId()));
-
-//        // product quantity -
-//        productServiceClient.order(orderRequestDto.getOrderProducts()
-//                .stream().map(dto -> ReduceQuantityRequestDto.builder()
-//                        .productId(dto.getProductId())
-//                        .quantity(dto.getQuantity())
-//                        .build())
-//                .toList());
-
     }
 
     public List<OrderResponseDto> getOrders(Long memberId) {

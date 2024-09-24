@@ -23,6 +23,9 @@ public class KafkaConsumerConfig {
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, "consumerGroupId");
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        properties.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 100);
+//        properties.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 100);
+//        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
 
         return new DefaultKafkaConsumerFactory<>(properties);
     }

@@ -32,7 +32,17 @@ public class Coupon {
     private Boolean isPercent;
     private Boolean disabled;
 
+    private Long quantity;
+
     public void toggle() {
         this.disabled = !this.disabled;
+    }
+
+    public void decreaseQuantity() {
+        if (this.quantity == null || this.quantity <= 0) {
+            throw new RuntimeException("쿠폰 발급 수량 부족");
+        }
+
+        this.quantity -= 1;
     }
 }

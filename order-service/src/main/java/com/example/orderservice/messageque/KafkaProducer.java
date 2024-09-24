@@ -35,4 +35,18 @@ public class KafkaProducer {
         log.info("kafka producer send date from the order micro service: {}", jsonString);
     }
 
+
+    public void send(String topic, Object object) {
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonString = "";
+        try {
+            jsonString = mapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        kafkaTemplate.send(topic, jsonString);
+        log.info("kafka producer send date from the order micro service: {}", object);
+    }
+
 }

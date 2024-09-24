@@ -8,10 +8,14 @@ import com.example.orderservice.entity.CouponImage;
 import com.example.orderservice.entity.MemberCoupon;
 import com.example.orderservice.error.exception.DuplicateException;
 import com.example.orderservice.error.exception.NotFoundException;
+import com.example.orderservice.messageque.KafkaProducer;
+import com.example.orderservice.repository.CountRepository;
 import com.example.orderservice.repository.CouponRepository;
 import com.example.orderservice.repository.FileStorage;
 import com.example.orderservice.repository.MemberCouponRepository;
+import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +33,8 @@ public class CouponService {
     private final CouponRepository couponRepository;
     private final MemberCouponRepository memberCouponRepository;
     private final FileStorage fileStorage;
+    private final CountRepository countRepository;
+    private final KafkaProducer kafkaProducer;
 
 
     /**
@@ -106,6 +112,31 @@ public class CouponService {
                 .orElseThrow(() -> new NotFoundException("해당하는 쿠폰이 없습니다.", couponId));
 
         coupon.toggle();
+    }
+
+    /**
+     * 선착순 쿠폰 발급
+     * @param couponId 쿠폰 식별자
+     * @param memberId 회원 식별자
+     */
+    public void issueLimitedCoupon(Long couponId, Long memberId) {
+        Long issuedCouponCount = countRepository.incrementCouponCount();
+        Coupon coupon = couponRepository.findById(couponId)
+                .orElseThrow(() -> new NotFoundException("coupon Not Found", couponId));
+
+        if (coupon.getQuantity() < issuedCouponCount) {
+            throw new RuntimeException("쿠폰 수량 부족");
+        }
+
+        MemberCoupon memberCoupon = MemberCoupon.builder()
+                .memberId(memberId)
+                .isUsed(false)
+                .build();
+        memberCoupon.setCouponId(couponId);
+
+        // kafka로 발급
+        kafkaProducer.send("issue_coupon", memberCoupon);
+
     }
 
     private static byte[] getFileBytes(MultipartFile multipartFile) {
