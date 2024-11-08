@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-
+/**
+ * 주문
+ */
 @Entity(name = "orders")
 @Builder
 @AllArgsConstructor

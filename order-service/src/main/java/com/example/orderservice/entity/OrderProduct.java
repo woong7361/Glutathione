@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 주문 제품
+ */
 @Entity
 @Builder
 @AllArgsConstructor

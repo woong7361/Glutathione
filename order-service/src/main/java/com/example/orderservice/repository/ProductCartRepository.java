@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 장바구니 repository
+ */
 @Repository
 public interface ProductCartRepository extends JpaRepository<ProductCart, Long> {
     /**

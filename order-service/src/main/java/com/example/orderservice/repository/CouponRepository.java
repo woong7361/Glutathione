@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * coupon repository
+ */
 public interface CouponRepository extends JpaRepository<Coupon, Long> {
     @Query("SELECT c " +
             "FROM Coupon c " +

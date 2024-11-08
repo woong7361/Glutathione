@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+/**
+ * kafka consumer class
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -20,24 +23,28 @@ public class KafkaConsumer {
     private final MemberCouponRepository memberCouponRepository;
     private final KafkaProducer kafkaProducer;
 
+    /**
+     * order rollback request event
+     * @param kafkaMessage rollback 해야할 order (String)
+     */
     @KafkaListener(topics = "order-request", groupId = "consumerGroupId")
     public void updateQty(String kafkaMessage) {
-        log.info("kafka Message: {}", kafkaMessage);
-
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             OrderRequestDto orderRequestDto = objectMapper.readValue(kafkaMessage, OrderRequestDto.class);
             orderService.order(orderRequestDto, orderRequestDto.getMemberId());
-            throw new RuntimeException("rollback");
         } catch (Exception e) {
             log.error("order error -> rollback required: {}", e.getMessage());
             kafkaProducer.send("order-rollback", kafkaMessage);
         }
     }
 
+    /**
+     * 쿠폰 발급 event
+     * @param kafkaMessage 발급할 쿠폰 (String)
+     */
     @KafkaListener(topics = "issue_coupon", groupId = "consumerGroupId")
     public void issue_coupon(String kafkaMessage) {
-//        log.info("kafka Message: {}", kafkaMessage);
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             MemberCoupon memberCoupon = objectMapper.readValue(kafkaMessage, MemberCoupon.class);

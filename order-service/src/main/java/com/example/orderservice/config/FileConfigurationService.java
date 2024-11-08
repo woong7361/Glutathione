@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+/**
+ * file environment 관련 configuration
+ */
 @Component
 @RequiredArgsConstructor
 public class FileConfigurationService {

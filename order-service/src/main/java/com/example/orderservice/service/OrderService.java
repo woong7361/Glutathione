@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * 주문 관련 서비스
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -29,6 +32,11 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
 
+    /**
+     * 주문 결재
+     * @param orderRequestDto 주문 요청 파라미터
+     * @param memberId 회원 식별자
+     */
     public void order(OrderRequestDto orderRequestDto, Long memberId) {
         List<OrderProcessDto> process = orderRequestDto.getOrderProducts()
                 .stream()
@@ -42,17 +50,7 @@ public class OrderService {
 
         Long walletAmount = walletService.getWalletAmount(memberId);
 
-        long payment = process
-                .stream().
-                map(p -> {
-                    if (p.getMemberCoupon() == null) {
-                        return p.getQuantity() * p.getProductDetail().getUnitPrice();
-                    } else {
-                        return p.getQuantity() * p.getProductDetail().getUnitPrice() - p.getMemberCoupon().getCoupon().getDiscount();
-                    }
-                })
-                .mapToInt(c -> Integer.valueOf(c.toString()))
-                .sum();
+        long payment = getTotalPrice(process);
 
         if (walletAmount < payment) {
             throw new IllegalArgumentException("잔액이 부족합니다.");
@@ -90,6 +88,20 @@ public class OrderService {
         process.stream()
                 .filter(p -> p.getMemberCoupon() != null)
                 .forEach(p -> memberCouponRepository.use(p.getMemberCoupon().getMemberCouponId()));
+    }
+
+    private long getTotalPrice(List<OrderProcessDto> process) {
+        return process
+                .stream().
+                map(p -> {
+                    if (p.getMemberCoupon() == null) {
+                        return p.getQuantity() * p.getProductDetail().getUnitPrice();
+                    } else {
+                        return p.getQuantity() * p.getProductDetail().getUnitPrice() - p.getMemberCoupon().getCoupon().getDiscount();
+                    }
+                })
+                .mapToInt(c -> Integer.valueOf(c.toString()))
+                .sum();
     }
 
     public List<OrderResponseDto> getOrders(Long memberId) {

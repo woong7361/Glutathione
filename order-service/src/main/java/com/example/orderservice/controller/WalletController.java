@@ -1,7 +1,6 @@
 package com.example.orderservice.controller;
 
 import com.example.orderservice.dto.order.PaymentConfirmRequest;
-import com.example.orderservice.dto.wallet.ChargeRequestDto;
 import com.example.orderservice.resolvehandler.AuthenticationPrincipal;
 import com.example.orderservice.resolvehandler.Principal;
 import com.example.orderservice.service.WalletService;

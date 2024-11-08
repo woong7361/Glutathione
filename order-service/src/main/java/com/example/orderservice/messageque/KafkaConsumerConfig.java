@@ -12,6 +12,9 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * kafka consumer 설정 class
+ */
 @EnableKafka
 @Configuration
 public class KafkaConsumerConfig {
@@ -24,8 +27,6 @@ public class KafkaConsumerConfig {
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         properties.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 100);
-//        properties.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 100);
-//        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
 
         return new DefaultKafkaConsumerFactory<>(properties);
     }

@@ -28,7 +28,7 @@ public class CartController {
      */
     @PostMapping("/carts")
     public ResponseEntity<Object> addCart(@RequestBody CartAddRequestDto cartAddRequestDto, @AuthenticationPrincipal Principal principal) {
-        cartService.accCart(cartAddRequestDto, principal.getMemberId());
+        cartService.addCart(cartAddRequestDto, principal.getMemberId());
 
         return ResponseEntity.ok().build();
     }

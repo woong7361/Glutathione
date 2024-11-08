@@ -5,6 +5,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 상품 상세정보 응답 DTO
+ */
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,7 +17,6 @@ public class ProductDetailResponseDto {
 
     private String name;
     private String description;
-//    private String content;
 
     private ProductType productType;
     private List<String> productStyles;

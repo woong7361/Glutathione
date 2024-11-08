@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 장바구니 제품
+ */
 @Entity
 @Builder
 @AllArgsConstructor

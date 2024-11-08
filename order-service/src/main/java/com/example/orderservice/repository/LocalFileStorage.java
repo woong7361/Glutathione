@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.UUID;
 
+/**
+ * server disk storage
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j

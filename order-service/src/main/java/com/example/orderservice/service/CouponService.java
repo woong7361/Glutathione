@@ -91,6 +91,11 @@ public class CouponService {
         memberCouponRepository.save(memberCoupon);
     }
 
+    /**
+     * 회원 쿠폰 조회
+     * @param memberId 회원 식별자
+     * @return 회원 쿠폰 리스트
+     */
     public List<CouponResponseDto> getMemberCoupon(Long memberId) {
         return memberCouponRepository.findByMemberId(memberId)
                 .stream()
@@ -107,6 +112,10 @@ public class CouponService {
                 .toList();
     }
 
+    /**
+     * 쿠폰 활성화/비활성화
+     * @param couponId 쿠폰 식별자
+     */
     public void toggle(Long couponId) {
         Coupon coupon = couponRepository.findById(couponId)
                 .orElseThrow(() -> new NotFoundException("해당하는 쿠폰이 없습니다.", couponId));

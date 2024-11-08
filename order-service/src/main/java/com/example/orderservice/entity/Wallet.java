@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+/**
+ * 개인 지갑
+ */
 @Entity
 @Builder
 @AllArgsConstructor

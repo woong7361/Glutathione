@@ -8,6 +8,9 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * 장바구니 응답 DTO
+ */
 @Getter
 public class CartResponseDto {
     private Long cartId;

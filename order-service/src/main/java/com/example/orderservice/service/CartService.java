@@ -32,7 +32,7 @@ public class CartService {
      * @param cartAddRequestDto 추가할 제품 dto
      * @param memberId          회원 식별자
      */
-    public void accCart(CartAddRequestDto cartAddRequestDto, Long memberId) {
+    public void addCart(CartAddRequestDto cartAddRequestDto, Long memberId) {
         ProductDetailResponseDto product = productServiceClient.getProduct(cartAddRequestDto.getProductId());
 
         ProductCart findCart = productCartRepository.findByMemberIdAndProductId(memberId, cartAddRequestDto.getProductId())
@@ -44,12 +44,14 @@ public class CartService {
 
         findCart.addQuantity(cartAddRequestDto.getQuantity());
 
-        if (findCart.getQuantity() <= 0 || findCart.getQuantity() > product.getQuantity()) {
+        if (verifyCartProductQuantity(findCart, product)) {
             throw new IllegalArgumentException("장바구니 수량은 제품의 재고수량을 넘거나 0이될 수 없습니다.");
         }
 
         productCartRepository.save(findCart);
     }
+
+
 
     /**
      * 장바구니 조회
@@ -88,5 +90,10 @@ public class CartService {
      */
     public void deleteCart(Long productCartId, Long memberId) {
         productCartRepository.deleteByProductCartIdAndMemberId(productCartId, memberId);
+    }
+
+
+    private static boolean verifyCartProductQuantity(ProductCart findCart, ProductDetailResponseDto product) {
+        return findCart.getQuantity() <= 0 || findCart.getQuantity() > product.getQuantity();
     }
 }

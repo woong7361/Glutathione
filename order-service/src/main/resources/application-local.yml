@@ -9,12 +9,7 @@ spring:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:db
     username: sa
-#  datasource:
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://127.0.0.1:11111/shop?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
-#    url: jdbc:mysql://43.203.197.118:30202/test?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
-#    username: woong
-#    password: woong7361
+
 
   jpa:
     hibernate:

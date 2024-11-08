@@ -4,6 +4,10 @@ import com.siot.IamportRestClient.IamportClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * 결재 API 설정 class
+ * -> PortOne 사용중
+ */
 @Configuration
 public class PayConfiguration {
 

@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 상품 수량 감소 요청 DTO
+ */
 @Data
 @Builder
 @AllArgsConstructor

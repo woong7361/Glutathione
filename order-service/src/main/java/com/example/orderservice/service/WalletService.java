@@ -13,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
+/**
+ * 지갑 관련 서비스
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
