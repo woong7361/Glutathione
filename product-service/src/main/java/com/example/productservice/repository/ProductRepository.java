@@ -13,9 +13,18 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 제품 repository
+ */
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, QueryDslProductRepository {
 
+    /**
+     * 썸네일을 포함한 제품 조회
+     * @param productId 제품 식별자
+     * @param startsWith 썸네일 시작 문자열
+     * @return
+     */
     @Query("SELECT pr " +
             "FROM Product pr " +
             "JOIN FETCH pr.productImages pimage " +
@@ -24,6 +33,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, QueryDs
             "AND pimage.originalName LIKE concat(:startsWith, '%') ")
     Optional<Product> findByIdWithThumbnail(Long productId, String startsWith);
 
+    /**
+     * 제품 좋아요 개수 카운트
+     * @param productId 제품 식별자
+     * @param memberId 회원 식별자
+     * @return 좋아요 개수
+     */
     @Query("SELECT NEW com.example.productservice.dto.product.ProductFavoriteDto( " +
             "   pr.productId, " +
             "   (SELECT count(pf.productFavoriteId) " +
@@ -36,6 +51,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, QueryDs
             "WHERE pr.productId = :productId ")
     ProductFavoriteDto findFavoriteCountById(Long productId, Long memberId);
 
+    /**
+     * 회원이 좋아요를 누른 제품 리스트 반환
+     * @param memberId 회원 식별자
+     * @param pageable 페이지네이션 요청 인자
+     * @return 제품 리스트
+     */
     @Query("SELECT" +
             "   pr.productId AS productId, pr.name AS name, pr.description AS description, " +
             "   pr.unitPrice AS unitPrice, pr.quantity AS quantity, " +
@@ -59,6 +80,11 @@ public interface ProductRepository extends JpaRepository<Product, Long>, QueryDs
             "WHERE pf.memberId = :memberId ")
     List<FavoriteProductResponseDto> findProductByMemberFavorite(Long memberId, Pageable pageable);
 
+    /**
+     * 제품 수량 변경
+     * @param productId 제품 식별자
+     * @param quantity 제품 수량
+     */
     @Modifying()
     @Query("UPDATE Product p " +
             "SET p.quantity = p.quantity - :quantity " +

@@ -8,15 +8,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+/**
+ * kafka consumer class
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class KafkaConsumer {
     private final ProductRepository productRepository;
 
+    /**
+     * rollback 요청으로 인한 제품 수량 업데이트
+     * @param kafkaMessage 카프카 메시지
+     */
     @KafkaListener(topics = "order-rollback", groupId = "consumerGroupId")
     public void updateQty(String kafkaMessage) {
-        log.info("kafka Message: {}", kafkaMessage);
+        log.info("order rollback-event receive: {}", kafkaMessage);
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();

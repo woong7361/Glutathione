@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 상품
+ */
 @Entity
 @Builder
 @AllArgsConstructor

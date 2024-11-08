@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 메인 배너
+ */
 @Entity
 @Builder
 @AllArgsConstructor

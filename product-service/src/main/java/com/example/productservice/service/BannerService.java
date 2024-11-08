@@ -18,6 +18,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 메인 배너 서비스
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional

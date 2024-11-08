@@ -186,6 +186,11 @@ public class ProductController {
         return productService.getProductByMemberFavorite(principal.getMemberId(), pageRequest);
     }
 
+    /**
+     * 가장 많이 주문한 상품조회
+     * @param principal 조회하는 회원
+     * @return 상품 리스트
+     */
     @GetMapping("/products/orders/top")
     public ResponseEntity getTopOrderProducts(@MemberPrincipal Principal principal) {
         List<ProductTopResponseDto> topOrderProducts = productService.getTopOrderProducts(principal.getMemberId());
@@ -193,6 +198,11 @@ public class ProductController {
         return ResponseEntity.ok(Map.of("products", topOrderProducts));
     }
 
+    /**
+     * 상품 주문
+     * @param requestDto 주문할 상품 목록과 수량
+     * @return 200 ok
+     */
     @PostMapping("/products/order")
     public ResponseEntity<Object> reduceQuantity(@RequestBody List<ReduceQuantityRequestDto> requestDto) {
         productService.reduceQuantity(requestDto);
@@ -203,7 +213,7 @@ public class ProductController {
      * 주문
      * @param principal 주문하는 사용자
      * @param orderRequestDto 주문 요청 정보
-     * @return
+     * @return 200 ok
      */
     @PostMapping("/orders")
     public ResponseEntity<Object> order(@AuthenticationPrincipal Principal principal, @RequestBody OrderRequestDto orderRequestDto) {

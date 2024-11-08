@@ -23,6 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 제품 스타일 관련 서비스
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -195,7 +198,6 @@ public class ProductService {
     }
 
     public void reduceQuantity(List<ReduceQuantityRequestDto> requestDto) {
-        // TODO Quantity > 0 엔티티에 설정해야한다.
         requestDto
                 .forEach(r -> productRepository.reduceQuantity(r.getProductId(), r.getQuantity()));
 

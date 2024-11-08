@@ -15,6 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * 문의 관련 서비스
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -93,7 +96,6 @@ public class InquireService {
                 }).toList();
 
         responseList.forEach(inq -> {
-            //TODO 쿼리가 많이 나간다.
             MemberDto memberDto = memberServiceClient.getMember(inq.getMemberId());
             inq.setMemberName(memberDto.getMemberName());
         });

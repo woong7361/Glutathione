@@ -10,8 +10,16 @@ import org.modelmapper.config.Configuration;
 
 import static org.modelmapper.convention.MatchingStrategies.STRICT;
 
+/**
+ * 문의 class mapper
+ */
 public class InquireConverter {
 
+    /**
+     * inquire to InquireResponse
+     * @param inquire 문의
+     * @return 문의 응답 class
+     */
     public static InquireListResponseDto.InquireResponse toInquireResponse(ProductInquire inquire) {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration()
@@ -24,6 +32,11 @@ public class InquireConverter {
     }
 
 
+    /**
+     * inquire answer to inquireAnswerResponseDto
+     * @param inquireAnswer 문의 응답
+     * @return 문의 응답 DTO
+     */
     public static InquireListResponseDto.InquireAnswerResponse toInquireAnswerResponse(ProductInquireAnswer inquireAnswer) {
         if (inquireAnswer == null) {
             return null;

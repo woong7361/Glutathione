@@ -4,6 +4,9 @@ import com.example.productservice.dto.file.FileSaveResultDto;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * 배너 이미지
+ */
 @Entity
 @Builder
 @AllArgsConstructor

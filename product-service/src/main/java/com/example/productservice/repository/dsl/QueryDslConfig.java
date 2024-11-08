@@ -6,6 +6,9 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * QueryDsl 설정
+ */
 @Configuration
 public class QueryDslConfig {
     private static JPAQueryFactory jpaQueryFactory;

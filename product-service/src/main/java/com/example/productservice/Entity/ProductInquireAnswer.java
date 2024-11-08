@@ -10,6 +10,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
+/**
+ * 상품 문의 답변
+ */
 @Entity
 @Builder
 @AllArgsConstructor

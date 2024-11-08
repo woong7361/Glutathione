@@ -19,6 +19,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+/**
+ * 파일 관련 서비스
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor

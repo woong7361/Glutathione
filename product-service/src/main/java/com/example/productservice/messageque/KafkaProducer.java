@@ -8,6 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * kafka producer class
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -15,7 +18,12 @@ public class KafkaProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
 
 
-    public OrderRequestDto send(String topic, OrderRequestDto orderRequestDto) {
+    /**
+     * 주문 요청을 보낸다.
+     * @param topic topic
+     * @param orderRequestDto 주문 요청 정보
+     */
+    public void send(String topic, OrderRequestDto orderRequestDto) {
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = "";
         try {
@@ -26,8 +34,6 @@ public class KafkaProducer {
 
         kafkaTemplate.send(topic, jsonString);
         log.info("kafka producer send date from the product micro service: {}", jsonString);
-
-        return orderRequestDto;
     }
 
 }

@@ -8,6 +8,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 제품 문의 repository
+ */
 @Repository
 public interface ProductInquireRepository extends JpaRepository<ProductInquire, Long> {
     /**

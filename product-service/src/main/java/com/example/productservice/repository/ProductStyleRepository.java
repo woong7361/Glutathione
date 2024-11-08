@@ -9,9 +9,17 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * 제품 스타일 repository
+ */
 @Repository
 public interface ProductStyleRepository extends JpaRepository<ProductStyle, Long>, QueryDslProductRepository {
 
+    /**
+     * 빈도수가 높은 스타일 반환
+     * @param size 반환할 크기
+     * @return 스타일 리스트
+     */
     @Query(value = "SELECT product_style.style as style, COUNT(product_style.product_style_id) as count " +
             "FROM product_style " +
             "GROUP BY product_style.style " +
@@ -20,28 +28,9 @@ public interface ProductStyleRepository extends JpaRepository<ProductStyle, Long
             nativeQuery = true)
     List<StyleCountDto> findMostCommonStyle(Integer size);
 
+    /**
+     * 삭제
+     * @param productId 제품 식별자
+     */
     void deleteByProductProductId(Long productId);
-
-//    @Query(value = "SELECT ranked.style, ranked.productId, ranked.name, ranked.style_count " +
-//            "FROM (" +
-//            "    SELECT ps.style as style, p.productId as productId, p.name as name, " +
-//            "           COUNT(*) OVER (PARTITION BY ps.style) as style_count, " +
-//            "           ROW_NUMBER() OVER (PARTITION BY ps.style ORDER BY p.productId) as row_num " +
-//            "    FROM ProductStyle ps " +
-//            "    JOIN Product p ON ps.product.productId = p.productId " +
-//            ") ranked " +
-//            "WHERE ranked.row_num <= 5 " +
-//            "  AND ranked.style IN (" +
-//            "    SELECT top_styles.style " +
-//            "    FROM (" +
-//            "        SELECT ps.style AS style, COUNT(*) as count" +
-//            "        FROM ProductStyle ps" +
-//            "        GROUP BY ps.style " +
-//            "        ORDER BY count DESC " +
-//            "        LIMIT 5" +
-//            "    ) top_styles" +
-//            ") " +
-//            "ORDER BY ranked.style_count DESC, ranked.style")
-//    List<Object[]> findTop5StylesWithTop5Products();
-
 }

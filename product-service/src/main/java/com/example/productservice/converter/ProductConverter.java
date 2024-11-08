@@ -53,6 +53,11 @@ public class ProductConverter {
         return result;
     }
 
+    /**
+     * product to productSearchResponseDto
+     * @param product 상품
+     * @return 상품 검색 response DTO
+     */
     public static ProductSearchResponseDto toProductSearchResponseDto(Product product) {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration()

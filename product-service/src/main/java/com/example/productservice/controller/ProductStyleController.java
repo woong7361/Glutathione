@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 상품 스타일 관련 endpoint
+ */
 @RestController
 @RequiredArgsConstructor
 public class ProductStyleController {

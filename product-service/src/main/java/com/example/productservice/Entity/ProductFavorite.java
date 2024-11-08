@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 상품 좋아요
+ */
 @Entity
 @Builder
 @AllArgsConstructor
