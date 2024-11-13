@@ -430,20 +430,21 @@ done
 
 ## SQL 최적화를 통한 검색 성능 향상
 ### 많은 양의 데이터가 축적되었을때 검색 성능을 SQL최적화를 통해 해결해보려고 시도하였다.
-- 검색 데이터가 10만건이라고 가정, test tool은 ngrinder를 사용, 측정 결과는 3번의 테스트중 중간값을 사용하였다.
+- 검색 데이터가 **10만건이라고 가정**, test tool은 ngrinder를 사용, 측정 결과는 **3번의 테스트중 중간값**을 사용하였다.
 
 ### 진행 과정
-1. 초기 성능: TPS: , ...
-3. index 적용 후 성능: 
-4. N+1 문제 해결 후 성능:
-5. 쿼리 개선 후 성능(기존 쿼리 2개 groupby를 통해 통합): 변화 없음
+1. 초기 성능 - **TPS: 17.9**
+2. index 적용 후 성능 - **TPS: 47.7 (260% 성능 향상)**
+3. N+1 문제 해결 후 성능 - **TPS: 67.1 (약 40%의 성능 개선)**
+4. 기타 쿼리 개선 후 성능(기존 쿼리 2개 groupby를 통해 통합): **TPS: 70.1 (약 5%의 성능 개선)**
 
 <details>
   <summary>*<b>자세한 사항은 펼쳐보기</b>*</summary>
 
 ### 1. 기존 성능 측정
-- 현재 index가 하나도 없는 상황이다.
-![image](https://github.com/user-attachments/assets/eff1ab2a-5b88-46bf-90d5-4eac03291c68)
+- 기존의 검색 Query를 간략화하여 살펴본 것이다.
+- index가 없어 느리다.
+![image](https://github.com/user-attachments/assets/5852310b-cad4-4388-97c3-c9e0184ab12e)
 - 비교를 위하여 성능 측정을 해보았다.
 ![image](https://github.com/user-attachments/assets/3c37f410-0a84-42b9-a731-ac972afefe25)
 
@@ -453,12 +454,13 @@ Executed Tests: 1,005
 
 ### 2. Index를 통한 검색 성능 측정
 - 기존의 Like를 이용한 검색은 "LIKE '%<keyword>%'" 형태로 Index 적용이 불가능했다.
-- 조사중 Full Text Index를 사용한다면 index를 사용가능하다고 나와 검색 컬럼에 적용해보았다.
-  - contain을 지원하기위해 **ngram parser**를 사용하였다.
-- 문제사항으로 FULL TEXT INDEX는 **order by에 index를 적용하지 못한다는 단점**이 있다. 추후 성능이 안나온다면 Elastic Search나 다른 검색 엔진을 고려해봐야겠다.
+- **Full Text Index**를 사용한다면 index를 활용해 포함 검색을 진행할 수 있다..
+  - 포함 검색을 지원하기 위해 parser는 **ngram parser**를 사용하였다.
+- 문제사항으로 FULL TEXT INDEX는 **order by에 index를 적용하지 못한다는 단점**이 있다. 추후 성능이 떨어진다면 Elastic Search나 다른 검색 엔진을 고려해봐야겠다.
  
 - fulltext index가 적용되는 예시
-![2](https://github.com/user-attachments/assets/8d76a30c-09e9-4663-bfc5-ac9ee8e76a14)
+- 단일 쿼리 시간 차이: **0.12 sec -> 0.02 sec**
+![image](https://github.com/user-attachments/assets/95bfbbca-46f8-431b-84e9-1e1e6c27542a)
 
 ![image (2)](https://github.com/user-attachments/assets/943b4aa1-a537-443e-be76-ff048ad366b5)
 - TPS: 47.7
@@ -472,7 +474,7 @@ Executed Tests: 1,005
 ![image (3)](https://github.com/user-attachments/assets/514a3a20-ba72-450a-b6c0-f23975a526d8)
 
 - 같은 형시의 쿼리가 계속 나가는 것을 확인해보니 N+1 문제였다.
-  - lazy loading이 문제여서 **fetch join을 통해 해결**하였다.
+  - JPA의 Lazy Loading이 문제여서 **fetch join을 통해 해결**하였다.
     
 ![image](https://github.com/user-attachments/assets/e1ea976c-7d76-4dfe-b6a7-3a349eeb8fcd)
 - TPS: 67.1
@@ -485,6 +487,7 @@ Executed Tests: 1,005
   - #1 쿼리 - 상품의 좋아요 수 & 내가 누른 좋아요, #2 쿼리 - 상품 문의 개수 -> 하나의 쿼리문으로
   - #1 쿼리: 0.0009 sec, #2쿼리: 0.0009 sec -> 통합 쿼리: 0.001 sec,
     - 2배의 성능 향상 but. 절대적인 처리시간이 작아 큰 차이는 없을것으로 예상된다.
+      
 ![image](https://github.com/user-attachments/assets/bd300585-0014-4f78-a2fa-76cc6515df66)
 - TPS: 70.0
 - Mean Test Time: 709.42 MS
