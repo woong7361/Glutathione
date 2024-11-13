@@ -448,9 +448,9 @@ done
 - 비교를 위하여 성능 측정을 해보았다.
 ![image](https://github.com/user-attachments/assets/3c37f410-0a84-42b9-a731-ac972afefe25)
 
-TPS: 17.9
-Mean Test Time: 2,760.83 MS
-Executed Tests: 1,005
+- TPS: 17.9
+- Mean Test Time: 2,760.83 MS
+- Executed Tests: 1,005
 
 ### 2. Index를 통한 검색 성능 측정
 - 기존의 Like를 이용한 검색은 "LIKE '%<keyword>%'" 형태로 Index 적용이 불가능했다.
