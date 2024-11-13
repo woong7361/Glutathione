@@ -428,6 +428,71 @@ done
 </details>
 
 
+## SQL 최적화를 통한 검색 성능 향상
+### 많은 양의 데이터가 축적되었을때 검색 성능을 SQL최적화를 통해 해결해보려고 시도하였다.
+- 검색 데이터가 10만건이라고 가정, test tool은 ngrinder를 사용
+- 측정 결과는 3번의 테스트중 중간값을 사용하였다.
+
+- 초기 성능: TPS: , ...
+- soring index 적용 후 성능:
+- full text index 적용 후 성능(검색용): 
+- N+1 문제 해결 후 성능:
+- 쿼리 개선 후 성능(기존 쿼리 2개 groupby를 통해 통합): 
+
+<details>
+  <summary>*<b>자세한 사항은 펼쳐보기</b>*</summary>
+
+### 1. 기존 성능 측정
+- 비교를 위하여 먼저 성능 측정을 했다.
+![image](https://github.com/user-attachments/assets/3c37f410-0a84-42b9-a731-ac972afefe25)
+TPS: 17.9
+Mean Test Time: 2,760.83 MS
+Executed Tests: 1,005
+
+### 2. Sorting Index 성능 측정
+- EXPLAIN을 통해 확인해봤을때 sorting이 index가 없어 시간이 오래걸리고 있었다. sorting column에 index를 추가해주어 성능을 향상시켰다.
+![1](https://github.com/user-attachments/assets/5e3cb693-3be2-4c3c-aad0-f0e9396c26d3)
+TPS: 20.4
+Mean Test Time: 2,461.32 MS
+Executed Tests: 1,145
+
+### 3. Full Text Index를 통한 검색 성능 측정
+- 기존의 Like를 이용한 검색은 "LIKE '%<keyword>%'" 형태로 Index 적용이 불가능했다.
+- 조사중 Full Text Index를 사용한다면 index를 사용가능하다고 나와 검색 컬럼에 적용해보았다.
+  - contain을 지원하기위해 **ngram parser**를 사용하였다.
+ 
+- fulltext index가 적용되는 예시
+![2](https://github.com/user-attachments/assets/8d76a30c-09e9-4663-bfc5-ac9ee8e76a14)
+
+![image (2)](https://github.com/user-attachments/assets/943b4aa1-a537-443e-be76-ff048ad366b5)
+TPS: 47.7
+Mean Test Time: 1,028.02 MS
+Executed Tests: 2,770
+
+
+### 4. N+1문제 해결 후 성능 측정
+- 성능 개선을 진행하다보니 log에 불필요한 쿼리가 계속 실행되는 것을 확인하였다.
+![image (3)](https://github.com/user-attachments/assets/514a3a20-ba72-450a-b6c0-f23975a526d8)
+
+- 같은 형시의 쿼리가 계속 나가는 것을 확인해보니 N+1 문제였다.
+  - lazy loading이 문제여서 **fetch join을 통해 해결**하였다.
+    
+![image (4)](https://github.com/user-attachments/assets/f88eef6b-f5e4-4a65-8d3b-0f3c63a01b0a)
+TPS: 58.2
+Mean Test Time: 845.36 MS 
+Executed Tests: 3,380
+
+### 5. 기타 쿼리 개선
+- sub쿼리로 나가던 2개의 쿼리문을 하나의 groupby문으로 묶어 해결하였다.
+  - #1 쿼리 - 상품의 좋아요 수 & 내가 누른 좋아요, #2 쿼리 - 상품 문의 개수 -> 하나의 쿼리문으로
+  - #1 쿼리: 0.0009 sec, #2쿼리: 0.0009 sec -> 통합 쿼리: 0.001 sec,
+    - 2배의 성능 향상 but. 절대적인 처리시간이 작아 큰 차이는 없을것으로 예상된다.
+
+- 성능 테스트 결과 별 차이가 없어 결과는 넘긴다.
+ 
+</details>
+
+
 
 ## MSA 환경으로 인해 발생하는 Cost 최소화
 ### 현재 개발 PC1, 서버 PC1, EC2 free tier 2 => 개발PC를 제외한 서버 2대가 존재하는데 로컬 서버PC의 메모리 사용량이 90%가 넘어서 죽는 문제 발생
