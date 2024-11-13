@@ -2,11 +2,13 @@ package com.example.productservice.repository.dsl;
 
 import com.example.productservice.Entity.*;
 import com.example.productservice.converter.ProductConverter;
+import com.example.productservice.dto.SearchCountDto;
 import com.example.productservice.dto.inquire.InquireCountDto;
 import com.example.productservice.dto.product.ProductFavoriteDto;
 import com.example.productservice.dto.product.ProductSearchRequestDto;
 import com.example.productservice.dto.product.ProductSearchResponseDto;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
@@ -23,7 +25,10 @@ import static com.example.productservice.Entity.QProductFavorite.productFavorite
 import static com.example.productservice.Entity.QProductImage.productImage;
 import static com.example.productservice.Entity.QProductInquire.productInquire;
 import static com.example.productservice.Entity.QProductStyle.productStyle;
+import static com.example.productservice.Entity.QProductType.productType;
 import static com.querydsl.core.types.ExpressionUtils.count;
+import static com.querydsl.core.types.dsl.Expressions.numberTemplate;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 @RequiredArgsConstructor
 public class QueryDslProductRepositoryImpl implements QueryDslProductRepository {
@@ -45,6 +50,7 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
                 .select(product)
                 .from(product)
                 .leftJoin(product.productStyles, productStyle).fetchJoin()
+                .join(product.productType, productType).fetchJoin()
                 .where(searchCondition(searchRequestDto))
                 .distinct()
                 .orderBy(orderCondition(searchRequestDto))
@@ -56,41 +62,29 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
                 .map(Product::getProductId)
                 .collect(Collectors.toList());
 
-        List<ProductFavoriteDto> favoriteList = queryFactory
-                .select(Projections.fields(ProductFavoriteDto.class,
-                        product.productId,
-                        ExpressionUtils.as(
-                                JPAExpressions.select(count(productFavorite.productFavoriteId))
-                                        .from(productFavorite)
-                                        .where(productFavorite.product.productId.eq(product.productId)),
-                                "favoriteCount"),
+        // 개선판
+        List<SearchCountDto> fetch = queryFactory
+                .select(Projections.fields(SearchCountDto.class,
+                        ExpressionUtils.as(product.productId,"productId"),
+                        ExpressionUtils.as(count(productFavorite.productFavoriteId),"favoriteCount"),
                         ExpressionUtils.as(
                                 JPAExpressions.select()
                                         .from(productFavorite)
                                         .where(productFavorite.product.productId.eq(product.productId)
                                                 .and(productFavorite.memberId.eq(memberId)))
                                         .exists(),
-                                "isFavor")
-                        ))
+                                "isFavor"),
+                        ExpressionUtils.as(count(productInquire.productInquireId), "inquireCount")
+                        )
+                )
                 .from(product)
-                .distinct()
+                .leftJoin(productInquire)
+                    .on(productInquire.product.productId.eq(product.productId)).fetchJoin()
+                .leftJoin(productFavorite)
+                    .on(productFavorite.product.productId.eq(product.productId)).fetchJoin()
                 .where(product.productId.in(ids))
+                .groupBy(product.productId)
                 .fetch();
-
-        List<InquireCountDto> inquireCountList = queryFactory
-                .select(Projections.fields(InquireCountDto.class,
-                        product.productId,
-                        ExpressionUtils.as(
-                                JPAExpressions.select(count(productInquire.productInquireId))
-                                        .from(productInquire)
-                                        .where(productInquire.product.productId.eq(product.productId)),
-                                "inquireCount")
-                ))
-                .from(product)
-                .distinct()
-                .where(product.productId.in(ids))
-                .fetch();
-
 
         List<Product> productsWithThumbnail = queryFactory
                 .selectFrom(product)
@@ -100,25 +94,27 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
                         .and(productImage.originalName.like("thumbnail_%")))
                 .fetch();
 
+
         List<ProductSearchResponseDto> result = productsWithStyles.stream()
                 .map(pr -> ProductConverter.toProductSearchResponseDto(pr))
                 .toList();
 
-        Map<Long, ProductFavoriteDto> favoriteMap = favoriteList.stream()
-                .collect(Collectors.toMap(fl -> fl.getProductId(), fl -> fl));
-        Map<Long, InquireCountDto> inquireMap = inquireCountList.stream()
-                .collect(Collectors.toMap(inq -> inq.getProductId(), inq -> inq));
+        Map<Long, SearchCountDto> countMap = fetch.stream()
+                .collect(Collectors.toMap(f -> f.getProductId(), f -> f));
         Map<Long, Product> thumbnailMap = productsWithThumbnail.stream()
                 .collect(Collectors.toMap(pr -> pr.getProductId(), pr -> pr));
 
         result.forEach(res -> {
-            res.setThumbnail(thumbnailMap.get(res.getProductId()).getProductImages().get(0));
-            res.setFavorCount(favoriteMap.get(res.getProductId()).getFavoriteCount());
-            res.setIsFavor(favoriteMap.get(res.getProductId()).getIsFavor());
-            res.setInquireCount(inquireMap.get(res.getProductId()).getInquireCount());
+//            res.setThumbnail(thumbnailMap.get(res.getProductId()).getProductImages().get(0));
+
+            res.setFavorCount(countMap.get(res.getProductId()).getFavoriteCount());
+            res.setIsFavor(countMap.get(res.getProductId()).getIsFavor());
+            res.setInquireCount(countMap.get(res.getProductId()).getInquireCount());
+
         });
 
         return result;
+//        return List.of();
     }
 
     private OrderSpecifier<?> orderCondition(ProductSearchRequestDto searchRequestDto) {
@@ -160,7 +156,8 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
         return booleanBuilder
-                .and(productNameLike(searchRequestDto.getKeyword()))
+//                .and(productNameLike(searchRequestDto.getKeyword()))
+                .and(fullTextNameLike(searchRequestDto.getKeyword()))
                 .and(productTypeEqual(searchRequestDto.getType()))
                 .and(productStyleHave(searchRequestDto.getStyle()));
     }
@@ -171,11 +168,22 @@ public class QueryDslProductRepositoryImpl implements QueryDslProductRepository 
     }
 
     private BooleanExpression productTypeEqual(String type) {
-        return StringUtils.hasText(type) ? product.productType.type.eq(type) : null;
+        return StringUtils.hasText(type) ? productType.type.eq(type) : null;
     }
 
     private BooleanExpression productNameLike(String keyword) {
         return StringUtils.hasText(keyword) ? product.name.contains(keyword) : null;
+    }
+
+    private BooleanExpression fullTextNameLike(String keyword) {
+        if (isBlank(keyword)) {
+            return null;
+        }
+
+        final String formattedSearchWord = keyword + "*";
+        return numberTemplate(Double.class, "function('match_against', {0}, {1})",
+                product.name, formattedSearchWord)
+                .gt(0);
     }
 
     private BooleanExpression thumbnail() {
