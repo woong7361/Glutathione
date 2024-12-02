@@ -82,7 +82,7 @@
   
 # 서비스 인프라 개요
 ## CI/CD 파이프라인 구축
-### MSA를 사용하다보니 배포와 테스트할 케이스가 많아져 CI/CD의 필요성이 더욱 높아져 각 서비스별로 Jenkins를 활용하여 CI/CD를 구축하게 되었습니다.
+### MSA로 인해 복잡해진 서비스 구조의 배포과정을 단순화하고, 안정적이고 빠른 배포 주기를 가지기 위해 Jenkins를 활용한 CI/CD 파이프라인 구축
 - Jenkins와 Docker를 활용하여 CI/CD 파이프라인 구축
   - github hook을 사용하여 branch가 push될때 가동 되도록 구축
   - 각 서비스별 파이프라인을 따로 구축하여 서비스별로 CI/CD가 가능하게끔 구성
@@ -95,7 +95,7 @@
   - password: 1234
 
 ## 로그 관리
-### MSA로 인해 분산된 로그 때문에 에러나 상황파확이 어려워져 통합적인 로그관리의 필요성이 높아졌습니다. 따라서 traceId를 활용해 로그 트레이싱 환경을 구축하였습니다.
+### MSA로 인해 흩어진 로그들을 중앙에서 수집, 분석하고 애플리케이션의 성능 및 문제 진단을 위해 분산 로그 트레이싱 환경 구축
 - Micrometer Tracing(traceId 제공)과 ELK를 활용하여 분산 로그 트레이싱 환경 구축
 
   ![image](https://github.com/user-attachments/assets/cf7f1548-c592-4909-9384-480650b271eb)
@@ -106,10 +106,9 @@
 ## 분산 트랜잭션 관리
 ### 결재 서비스와 상품서비스간의 협력시 트랜잭션 처리의 문제가 발생
 - order-service에서 결재시 product-service의 product 수량을 감소 시켜주어야하는 상황에서 에러 발생시 트랜잭션 롤백 처리가 안되는 문제 발생
-- 결재 및 상품 수정(상품 수량 감소)에서 SAGA Choreography 패턴 적용
-- 로컬 트랜잭션에서 에러 발생시 보상 트랜잭션을 통해 데이터 일관성 유지
-- Message Que(Kafka)를 활용한 이벤트 기반 비동기 통신으로 서비스간 결합도를 낮춤
-  - 다른 서비스의 트랜잭션 실패를 대기할 일이 없으므로 빠른 처리 가능 
+- 결재 및 상품 수정(상품 수량 감소)에서 장애가 나면 보상 트랜잭션 이벤트를 발행하는 형식인 **SAGA Choreography 패턴** 적용
+- Choreography 방식은 서비스끼리 직접적으로 통신하지 않고, **이벤트 Pub/Sub 방식을 활용하여 통신**하는 방식
+- 안정적인 운영을 위해 데이터가 파일에 저장되고, 장애 발생 시 저장된 이벤트를 재처리 할 수 있는 kafka를 활용해 SAGA 패턴 구현
 
 <details>
   <summary>*<b>자세한 사항은 펼쳐보기</b>*</summary>
@@ -215,15 +214,13 @@ public void updateQty(String kafkaMessage) {
 
 ## 선착순 쿠폰 발급시 동시성 제어및 시스템 부하 관리
 ### 쿠폰발급시 정해진 쿠폰 수량보다 더 많은 쿠폰이 발급되는 동시성 문제가 발생
-1. DB Lock을 통한 해결 (비관적 Lock)
-   - 스크린샷
-   - 성능 & 분산환경에서 불가능
-2. redis를 이용한 해결
-   - redis가 single thread로 작동되는 것을 이용하여 해결
+2. redis 분산락을 이용한 해결
+   - 분산 환경에서 대용량 트래픽을 고려하여 추후 데이터베이스가 분산이 되었을 때도 안정적이게 동시성 이슈를 해결하기 위하여 Pub/Sub기반의 Reddsion을 활용한 레디스 분산락 사용
+   - 추가로 redis가 single thread로 작동되는 것이 추가적인 side effect를 막아줄 수 있다고 생각
 
 ### 위의 문제를 해결하다보니 단기간에 접속이 많아져 DB CPU이용률이 높아지는 문제 발생
-- message que인 kafka를 통해 데이터 흐름의 양을 제어
-- kafka는 DB에 비해 sacle out도 쉽게 가능
+- 소비자가 원하는 속도로 데이터를 가져가는 **Pull 모델**로 동작하고, 데이터를 디스크에 저장하여 메시지가 소실되지 않아 **재처리가 가능**한 장점을 가진 kafka를 활용하여 비동기로 **처리량 조절** 
+- CPU 최고 사용률이 88%에서 52%로 변화하면서 안정적인 운영이 가능도록 바뀜
 
 <details>
   <summary>*<b>자세한 사항은 펼쳐보기</b>*</summary>
@@ -260,33 +257,8 @@ public void issueLimitedCoupon(Long couponId, Long memberId) {
 - ![image](https://github.com/user-attachments/assets/78825834-01d0-4652-8d2d-adcfb56a2169)
 
 ### 해결방법 
-1. **Lock으로 해결해보기(DB Lock)**
-- 가장먼저 간단한 방법인 DB Lock을 적용하여 시험해보았다.
-- 비관적 Lock을 사용하여 구현하였다.
-```
-    public void issueLimitedCoupon(Long couponId, Long memberId) {
 
-        // @Lock(LockModeType.PESSIMISTIC_WRITE)를 추가해 조회문을 SelectForUpdate로 바꿔 비관적 Lock을 구현한다. 
-        Coupon coupon = couponRepository.findByCouponIdForUpdate(couponId)
-                .orElseThrow(() -> new CouponException("coupon Not Found", couponId));
-        coupon.decreaseQuantity();  // 쿠폰 수량을 줄이고, 줄일 수 없다면 에러를 낸다.
-
-        MemberCoupon memberCoupon = MemberCoupon.builder()
-                .memberId(memberId)
-                .isUsed(false)
-                .build();
-        memberCoupon.setCouponId(couponId);
-
-        memberCouponRepository.save(memberCoupon);
-    }
-```
-
-- 결과: **100개**의 쿠폰 발급 & 평균 **3.4초**의 처리속도
-- DB Lock으로 인해 **처리 시간이 약 17% 증가** & 비관적 Lock은 **분산 환경에서 불가능**한 단점
-  ![image](https://github.com/user-attachments/assets/1a7920ab-5181-4649-beca-831bdf9b620a)
-  
-
-2. **Redis를 중간에 도입하여 해결**
+1. **Redis를 도입하여 해결**
 - Redis가 Redis 명령어를 single thread로 처리하는 방식을 이용
 - 단순히 쿠폰의 개수만 세는 역할
   - 복잡한 분산 Lock 사용X
@@ -311,12 +283,10 @@ public void issueLimitedCoupon(Long couponId, Long memberId) {
     memberCouponRepository.save(memberCoupon);
 }
 ```
-- 결과: **100개**의 쿠폰 발급 & 평균 **3.6초**의 처리속도
-- 추가 네트워크 비용으로 인해 **처리 시간이 약 25% 증가**  
 - ![image](https://github.com/user-attachments/assets/5e1c3abc-3248-4029-aa85-096a057d44e3)
 
 ### 결론
-- Redis를 사용하는 방법이 8%정도의 시간이 더 걸리지만, 추후 분산환경으로 변경을 고려하여 Redis를 선택하였다. 
+- Pub/Sub기반의 Reddsion을 활용한 레디스 분산락 사용하여 분산환경에서도 안정적인 분산락 환경을 구성
 
 ### 문제상황2
 - 단기간의 급격한 트래픽 상승으로인해 **DB부하**
@@ -328,7 +298,7 @@ public void issueLimitedCoupon(Long couponId, Long memberId) {
 ### 해결방법
 - kafka를 사용한 처리량 조절
   - ex. 선착순 쿠폰 1000개를 발급일때
-  - 비용이 높은 쓰기 작업을 DB에 바로 접근 대신 Message Queue에 저장 후 처리
+  - 비용이 높은 쓰기 작업을 DB에 바로 접근 대신 Message Queue에 저장 후 가져오는 Pull 방식으로 처리
 ```
 ...
 
@@ -345,20 +315,19 @@ kafkaProducer.send("issue_coupon", memberCoupon);
 ## DB와 이미지 파일 동기화문제 해결
 ### 상품 혹은 배너와같은 이미지가 포함된 컬럼을 삭제할때 이미지파일은 DB 트랜잭션에 포함이 되지 않는 문제 발생
 - 이미지를 DB 컬럼과 같이 삭제해버리면 rollback이 안되므로 컬럼에 삭제처리만을 해준다.
-- 일정시간마다(linux crontab) 각 서비스의 database를 돌면서 삭제된지 일정기간이 지난 컬럼을 찾는다.
-  - mysql 원격접속 & .sql 파일 실행
+- 스케줄러를 통해 각 서비스의 database를 돌면서 삭제된지 일정기간이 지난 컬럼을 찾는다.
+  - 스케줄러는 현재 프로젝트의 cost 문제상 가장 싸고 손쉽게 사용 가능한 Linux Crontab을 사용하였다.
 - 검색된 컬럼에 쓰여있는 경로로 이동하여 이미지 파일을 삭제한다.
-  - crontab이 돌아가는 서버와 이미지가 저장되는 서버가 다르기에 ssh를 사용하여 원격으로 삭제한다.
 
 <details>
   <summary>*<b>자세한 사항은 펼쳐보기</b>*</summary>
 
 ### 문제상황
-- ex. 제품을 삭제하는 도중 rollback이 된다면 이미 삭제된 이미지는 rollback이 안되잖아???
+- ex. 제품을 삭제하는 도중 rollback이 된다면 이미 삭제된 이미지는 rollback이 안되는 문제
 - 상품 혹은 배너와같은 이미지가 포함된 컬럼을 삭제할때 이미지파일은 DB 트랜잭션에 포함이 되지 않는 문제 발생
 
 ### 해결방법
-- 따라서 이 프로젝트에서는 제품 이미지에 삭제됨 컬럼을 추가하였고, 실제 이미지는 즉시 삭제가아닌 추후삭제로 결정하였습니다.
+- 따라서 이 프로젝트에서는 제품 이미지에 삭제됨 컬럼을 추가하였고, 실제 이미지는 즉시 삭제가아닌 추후삭제로 결정
 ```
 // ProductImage.Java
 
@@ -434,7 +403,7 @@ done
 
 ### 진행 과정
 1. 초기 성능 - **TPS: 17.9**
-2. index 적용 후 성능 - **TPS: 47.7 (260% 성능 향상)**
+2. 카디널리티와 선택도를 고려하여 index 선택&적용 후 성능 - **TPS: 47.7 (260% 성능 향상)**
 3. N+1 문제 해결 후 성능 - **TPS: 67.1 (약 40%의 성능 개선)**
 4. 기타 쿼리 개선 후 성능(기존 쿼리 2개 groupby를 통해 통합): **TPS: 70.1 (약 5%의 성능 개선)**
 
@@ -453,6 +422,7 @@ done
 - Executed Tests: 1,005
 
 ### 2. Index를 통한 검색 성능 측정
+- 카디널리티와 선택도를 고려하여 검색 과정에서 INDEX를 제목 keyword에 적용하기로 결정하였다.
 - 기존의 Like를 이용한 검색은 "LIKE '%<keyword>%'" 형태로 Index 적용이 불가능했다.
 - **Full Text Index**를 사용한다면 index를 활용해 포함 검색을 진행할 수 있다..
   - 포함 검색을 지원하기 위해 parser는 **ngram parser**를 사용하였다.
@@ -507,6 +477,7 @@ done
     - ubuntu desktop -> ubuntu server
 3. docker 메모리제한
 4. jvm heap 제한
+5. 경량화 서비스 고려
 
 <details>
   <summary>*<b>자세한 사항은 펼쳐보기</b>*</summary>
@@ -541,7 +512,7 @@ done
 
 **결론**
 - 현재 서비스들을 사용하기 위한 기본적인 메모리가 없기에 다른 방법들을 사용해도 힘든것같다.
-- 결국 scale out을 하건 서비스들을 경량화하는 방향으로 가야할듯 하다. (ex. logstash -> fileBeats, Mysql -> SQL Lite) 
+- 결국 scale out을 하건 서비스들을 경량화하는 방향으로 가야할듯 하다.
 
 </details>
 
