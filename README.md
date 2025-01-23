@@ -259,9 +259,6 @@ public void issueLimitedCoupon(Long couponId, Long memberId) {
 
 1. **Redis를 도입하여 해결**
 - Redisson의 분산락을 활용해 해결하는 방식
-- 단순히 쿠폰의 개수만 세는 역할
-  - 복잡한 분산 Lock 사용X
-  - Redis의 원자적 연산인 increment를 사용하여 문제 해결
 ```
 public void issueLimitedCoupon(Long couponId, Long memberId) {
     RLock lock = redissonClient.getLock(COUPON_LOCK);
@@ -272,7 +269,7 @@ public void issueLimitedCoupon(Long couponId, Long memberId) {
 
       Coupon coupon = couponRepository.findById(couponId)
               .orElseThrow(() -> new NotFoundException("coupon Not Found", couponId));
-      int issuedCouponCount - couponCountRepository.findByCouponId(couponId);
+      long issuedCouponCount = MemberCouponRepository.countByCouponId(couponId);
       if (coupon.getQuantity() < issuedCouponCount) {
           throw new CouponException("쿠폰 수량 부족");
       }
