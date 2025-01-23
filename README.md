@@ -216,7 +216,7 @@ public void updateQty(String kafkaMessage) {
 ### 쿠폰발급시 정해진 쿠폰 수량보다 더 많은 쿠폰이 발급되는 동시성 문제가 발생
 Redis를 이용한 동시성 제어
    - 분산 환경에서 대용량 트래픽을 고려하여 추후 데이터베이스가 분산이 되었을 때도 안정적이게 동시성 이슈를 해결하기 위해 Redis 활용
-   - Redisson을 이용한 pub/sub방식의 분산락을 고려하였으나 현재 복잡한 임계구역이 필요치 않고, 단순히 쿠폰의 개수만 제어하면 되기에 Lock을 반환해야하는 추가적인 오버헤드가 없는 Lettuce의 원자적인 increment()연산을 사용하기로 결정
+   - 추가적인 오버헤드가 있는 spin lock기반의 lettuce보다 상대적으로 부하가 덜한 pub/sub 기반의 Redisson을 사용하여 분산락 구현
 
 ### 위의 문제를 해결하다보니 단기간에 접속이 많아져 DB CPU이용률이 높아지는 문제 발생
 - 소비자가 원하는 속도로 데이터를 가져가는 **Pull 모델**로 동작하고, 데이터를 디스크에 저장하여 메시지가 소실되지 않아 **재처리가 가능**한 장점을 가진 kafka를 활용하여 비동기로 **처리량 조절** 
@@ -252,35 +252,45 @@ public void issueLimitedCoupon(Long couponId, Long memberId) {
 }
 ```
 - 동시에 DB에 쓰기작업이 완료되지않고 동시에 조회작업이 들어와 문제가 발생한다.
-- 결과: **100개 초과**의 쿠폰 발급 & 평균 **2.9초**의 처리속도
 - ![image](https://github.com/user-attachments/assets/24de5e9c-1ec5-4520-bf42-c1249371f527)
 - ![image](https://github.com/user-attachments/assets/78825834-01d0-4652-8d2d-adcfb56a2169)
 
 ### 해결방법 
 
 1. **Redis를 도입하여 해결**
-- Redis가 Redis 명령어를 single thread로 처리하는 방식을 이용
+- Redisson의 분산락을 활용해 해결하는 방식
 - 단순히 쿠폰의 개수만 세는 역할
   - 복잡한 분산 Lock 사용X
   - Redis의 원자적 연산인 increment를 사용하여 문제 해결
 ```
 public void issueLimitedCoupon(Long couponId, Long memberId) {
+    RLock lock = redissonClient.getLock(COUPON_LOCK);
 
-    // redis의 increment연산 활용
-    Long issuedCouponCount = countRepository.incrementCouponCount();
-    Coupon coupon = couponRepository.findById(couponId)
-            .orElseThrow(() -> new NotFoundException("coupon Not Found", couponId));
-    if (coupon.getQuantity() < issuedCouponCount) {
-        throw new CouponException("쿠폰 수량 부족");
-    }
+    try {
+      if(!lock.tryLock(1, 3, TimeUnit.SECONDS))
+          return;
 
-    MemberCoupon memberCoupon = MemberCoupon.builder()
-            .memberId(memberId)
-            .isUsed(false)
-            .build();
-    memberCoupon.setCouponId(couponId);
-
-    memberCouponRepository.save(memberCoupon);
+      Coupon coupon = couponRepository.findById(couponId)
+              .orElseThrow(() -> new NotFoundException("coupon Not Found", couponId));
+      int issuedCouponCount - couponCountRepository.findByCouponId(couponId);
+      if (coupon.getQuantity() < issuedCouponCount) {
+          throw new CouponException("쿠폰 수량 부족");
+      }
+  
+      MemberCoupon memberCoupon = MemberCoupon.builder()
+              .memberId(memberId)
+              .isUsed(false)
+              .build();
+      memberCoupon.setCouponId(couponId);
+  
+      memberCouponRepository.save(memberCoupon);
+  }  catch (InterruptedException e) {
+      e.printStackTrace();
+  } finally {
+      if(lock != null && lock.isLocked()) {
+          lock.unlock();
+      }
+  }
 }
 ```
 - ![image](https://github.com/user-attachments/assets/5e1c3abc-3248-4029-aa85-096a057d44e3)
