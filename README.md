@@ -1,15 +1,6 @@
 # 서비스 소개
 글루따띠온은 MSA 구조를 이용한 B2C 형태의 쇼핑몰 사이트이며 원하는 제품을 검색하고 담아 구매할 수있는 사이트입니다.
 
-# 프로젝트 결과물
-**[[Client Page]](http://210.114.19.32:8090/)**
-- 계정 (id & password)
-  - admin | 1234
-
-**[[Admin Page]](http://210.114.19.32:8085/)**
-- 계정 (id & password)
-  - tester | tester
-
 # 개발 환경
 
 - 개발 운영체제 - Linux Ubuntu
@@ -89,17 +80,11 @@
     
   ![image](https://github.com/user-attachments/assets/649dcfaf-a29b-40d1-9175-94cbff5a6db5)
 
-**[[**jenkins 살펴보기!!**]](http://3.36.58.192:8080/)**
-- 계정 정보
-  - username: admin
-  - password: 1234
-
 ## 로그 관리
 ### MSA로 인해 흩어진 로그들을 중앙에서 수집, 분석하고 애플리케이션의 성능 및 문제 진단을 위해 분산 로그 트레이싱 환경 구축
 - Micrometer Tracing(traceId 제공)과 ELK를 활용하여 분산 로그 트레이싱 환경 구축
 
   ![image](https://github.com/user-attachments/assets/cf7f1548-c592-4909-9384-480650b271eb)
-- **[**elastic 살펴보기!!**](http://211.218.223.120:5601/app/discover#)**
 
 
 # 서비스 주요 특징 & 트러블 슈팅
